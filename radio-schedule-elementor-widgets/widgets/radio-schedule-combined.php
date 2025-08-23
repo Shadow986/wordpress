@@ -376,14 +376,22 @@ class Radio_Schedule_Combined_Widget extends \Elementor\Widget_Base {
         $shows_data = [];
         if (!empty($settings['radio_shows'])) {
             foreach ($settings['radio_shows'] as $show) {
+                // Ensure days is properly formatted
+                $days = $show['show_days'];
+                if (is_array($days)) {
+                    $days_string = implode(',', $days);
+                } else {
+                    $days_string = $days;
+                }
+                
                 $shows_data[] = [
                     'title' => $show['show_title'],
                     'host' => $show['show_host'],
                     'start_time' => $show['start_time'],
                     'end_time' => $show['end_time'],
-                    'days' => is_array($show['show_days']) ? implode(',', $show['show_days']) : $show['show_days'],
+                    'days' => $days_string,
                     'description' => $show['show_description'],
-                    'image' => $show['show_image']['url'] ?? '',
+                    'image' => !empty($show['show_image']['url']) ? $show['show_image']['url'] : '',
                     'is_live' => $show['is_live'] === 'yes',
                     'formatted_time' => $this->format_time_range($show['start_time'], $show['end_time'])
                 ];

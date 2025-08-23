@@ -67,11 +67,23 @@
             const currentTime = this.getCurrentTime();
             const currentShows = [];
             const upcomingShows = [];
+            const allDayShows = [];
+            
+            console.log('Loading shows for day:', day);
+            console.log('Shows data:', this.showsData);
             
             this.showsData.forEach(show => {
                 // Check if show airs on this day
-                const showDays = show.days.toLowerCase().split(',');
-                if (!showDays.includes(day)) {
+                let showDays = [];
+                if (typeof show.days === 'string') {
+                    showDays = show.days.toLowerCase().split(',').map(d => d.trim());
+                } else if (Array.isArray(show.days)) {
+                    showDays = show.days.map(d => d.toLowerCase().trim());
+                }
+                
+                console.log('Show:', show.title, 'Days:', showDays, 'Looking for:', day);
+                
+                if (!showDays.includes(day.toLowerCase())) {
                     return;
                 }
                 
@@ -86,18 +98,35 @@
                     is_live: show.is_live
                 };
                 
+                // Add to all day shows first
+                allDayShows.push(showData);
+                
                 // Check if show is currently on (only for today)
                 if (day === this.getCurrentDay() && show.start_time && show.end_time) {
-                    if (currentTime >= show.start_time && currentTime <= show.end_time) {
+                    const startTime = this.timeToMinutes(show.start_time);
+                    const endTime = this.timeToMinutes(show.end_time);
+                    const currentMinutes = this.timeToMinutes(currentTime);
+                    
+                    if (currentMinutes >= startTime && currentMinutes < endTime) {
                         currentShows.push(showData);
-                    } else if (show.start_time > currentTime) {
+                    } else if (startTime > currentMinutes) {
                         upcomingShows.push(showData);
                     }
+                } else if (day !== this.getCurrentDay()) {
+                    // For other days, show all scheduled shows as "upcoming"
+                    upcomingShows.push(showData);
                 }
             });
             
             // Sort upcoming shows by start time
-            upcomingShows.sort((a, b) => a.start_time.localeCompare(b.start_time));
+            upcomingShows.sort((a, b) => {
+                const aTime = this.timeToMinutes(a.start_time);
+                const bTime = this.timeToMinutes(b.start_time);
+                return aTime - bTime;
+            });
+            
+            console.log('Current shows:', currentShows);
+            console.log('Upcoming shows:', upcomingShows);
             
             // Render shows
             setTimeout(() => {
@@ -110,6 +139,12 @@
         getCurrentTime() {
             const now = new Date();
             return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+        }
+        
+        timeToMinutes(timeString) {
+            if (!timeString) return 0;
+            const [hours, minutes] = timeString.split(':').map(Number);
+            return hours * 60 + (minutes || 0);
         }
         
         renderCurrentShows(shows) {
