@@ -248,6 +248,26 @@ class Radio_Schedule_Combined_Widget extends \Elementor\Widget_Base {
         );
 
         $repeater->add_control(
+            'show_link',
+            [
+                'label' => esc_html__('Show Link/Website', 'radio-schedule-elementor'),
+                'type' => \Elementor\Controls_Manager::URL,
+                'placeholder' => esc_html__('https://your-show-website.com', 'radio-schedule-elementor'),
+                'description' => esc_html__('Link to show website, podcast, or more info', 'radio-schedule-elementor'),
+            ]
+        );
+
+        $repeater->add_control(
+            'listen_link',
+            [
+                'label' => esc_html__('Listen Live Link', 'radio-schedule-elementor'),
+                'type' => \Elementor\Controls_Manager::URL,
+                'placeholder' => esc_html__('https://stream.radio.com/live', 'radio-schedule-elementor'),
+                'description' => esc_html__('Direct link to listen to this show live', 'radio-schedule-elementor'),
+            ]
+        );
+
+        $repeater->add_control(
             'is_live',
             [
                 'label' => esc_html__('Live Show', 'radio-schedule-elementor'),
@@ -384,6 +404,14 @@ class Radio_Schedule_Combined_Widget extends \Elementor\Widget_Base {
                     $days_string = $days;
                 }
                 
+                // Get image URL properly
+                $image_url = '';
+                if (!empty($show['show_image']['url'])) {
+                    $image_url = $show['show_image']['url'];
+                } elseif (!empty($show['show_image']['id'])) {
+                    $image_url = wp_get_attachment_image_url($show['show_image']['id'], 'medium');
+                }
+                
                 $shows_data[] = [
                     'title' => $show['show_title'],
                     'host' => $show['show_host'],
@@ -391,7 +419,9 @@ class Radio_Schedule_Combined_Widget extends \Elementor\Widget_Base {
                     'end_time' => $show['end_time'],
                     'days' => $days_string,
                     'description' => $show['show_description'],
-                    'image' => !empty($show['show_image']['url']) ? $show['show_image']['url'] : '',
+                    'image' => $image_url,
+                    'show_link' => !empty($show['show_link']['url']) ? $show['show_link']['url'] : '',
+                    'listen_link' => !empty($show['listen_link']['url']) ? $show['listen_link']['url'] : '',
                     'is_live' => $show['is_live'] === 'yes',
                     'formatted_time' => $this->format_time_range($show['start_time'], $show['end_time'])
                 ];

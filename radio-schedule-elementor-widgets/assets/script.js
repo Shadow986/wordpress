@@ -23,11 +23,16 @@
             if (showsDataAttr) {
                 try {
                     this.showsData = JSON.parse(showsDataAttr);
+                    console.log('✅ Shows data loaded:', this.showsData.length, 'shows');
                 } catch (e) {
-                    console.error('Error parsing shows data:', e);
+                    console.error('❌ Error parsing shows data:', e);
                     this.showsData = [];
                 }
+            } else {
+                console.warn('⚠️ No shows data found in widget');
             }
+            
+            console.log('📅 Current day detected as:', this.currentDay);
             
             this.bindEvents();
             this.loadShows(this.currentDay);
@@ -38,7 +43,12 @@
         bindEvents() {
             this.container.on('click', '.day-btn', (e) => {
                 const day = $(e.target).data('day');
-                this.switchDay(day);
+                if (day === this.getCurrentDay()) {
+                    // If clicking "Today", use the actual current day
+                    this.switchDay(this.getCurrentDay());
+                } else {
+                    this.switchDay(day);
+                }
             });
         }
         
@@ -49,7 +59,12 @@
         
         setActiveDay() {
             this.container.find('.day-btn').removeClass('active');
-            this.container.find(`.day-btn[data-day="${this.currentDay}"]`).addClass('active');
+            // Handle "Today" button specially
+            if (this.currentDay === this.getCurrentDay()) {
+                this.container.find('.day-btn[data-day="' + this.getCurrentDay() + '"]').addClass('active');
+            } else {
+                this.container.find('.day-btn[data-day="' + this.currentDay + '"]').addClass('active');
+            }
         }
         
         switchDay(day) {
@@ -184,11 +199,25 @@
         
         getShowCardHTML(show, isLive = false) {
             const liveBadge = isLive ? '<div class="live-badge">🔴 LIVE</div>' : '';
+            const showImage = show.image && show.image !== '' ? show.image : this.getDefaultImage();
+            
+            // Build links HTML
+            let linksHTML = '';
+            if (show.listen_link || show.show_link) {
+                linksHTML = '<div class="show-links">';
+                if (show.listen_link) {
+                    linksHTML += `<a href="${show.listen_link}" target="_blank" class="listen-btn">🎧 Listen Live</a>`;
+                }
+                if (show.show_link) {
+                    linksHTML += `<a href="${show.show_link}" target="_blank" class="info-btn">ℹ️ More Info</a>`;
+                }
+                linksHTML += '</div>';
+            }
             
             return `
                 <div class="show-card ${isLive ? 'live-show' : ''}">
                     <div class="show-image-container">
-                        <img src="${show.image}" alt="${show.title}" class="show-image" loading="lazy">
+                        <img src="${showImage}" alt="${show.title}" class="show-image" loading="lazy" onerror="this.src='${this.getDefaultImage()}'">
                         ${liveBadge}
                     </div>
                     <div class="show-content">
@@ -196,19 +225,39 @@
                         <p class="show-host">with ${show.host}</p>
                         <div class="show-time">${show.formatted_time}</div>
                         ${show.description ? `<p class="show-description">${show.description}</p>` : ''}
+                        ${linksHTML}
                     </div>
                 </div>
             `;
         }
         
         getUpcomingCardHTML(show) {
+            const showImage = show.image && show.image !== '' ? show.image : this.getDefaultImage();
+            
+            // Build links HTML
+            let linksHTML = '';
+            if (show.listen_link || show.show_link) {
+                linksHTML = '<div class="show-links compact">';
+                if (show.listen_link) {
+                    linksHTML += `<a href="${show.listen_link}" target="_blank" class="listen-btn-small">🎧</a>`;
+                }
+                if (show.show_link) {
+                    linksHTML += `<a href="${show.show_link}" target="_blank" class="info-btn-small">ℹ️</a>`;
+                }
+                linksHTML += '</div>';
+            }
+            
             return `
                 <div class="upcoming-card">
+                    <div class="upcoming-image">
+                        <img src="${showImage}" alt="${show.title}" class="upcoming-show-image" loading="lazy" onerror="this.src='${this.getDefaultImage()}'">
+                    </div>
                     <div class="upcoming-content">
                         <h4 class="show-title">${show.title}</h4>
                         <p class="show-host">with ${show.host}</p>
                         <span class="time-badge">${show.formatted_time}</span>
                         ${show.description ? `<p class="show-description">${show.description}</p>` : ''}
+                        ${linksHTML}
                     </div>
                 </div>
             `;
