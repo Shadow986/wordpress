@@ -127,12 +127,10 @@ final class Radio_Schedule_Elementor {
      */
     public function init_widgets() {
         // Include Widget files
-        require_once(__DIR__ . '/widgets/radio-schedule-display.php');
-        require_once(__DIR__ . '/widgets/radio-show-manager.php');
+        require_once(__DIR__ . '/widgets/radio-schedule-combined.php');
 
         // Register widget
-        \Elementor\Plugin::instance()->widgets_manager->register_widget_type(new \Radio_Schedule_Display_Widget());
-        \Elementor\Plugin::instance()->widgets_manager->register_widget_type(new \Radio_Show_Manager_Widget());
+        \Elementor\Plugin::instance()->widgets_manager->register_widget_type(new \Radio_Schedule_Combined_Widget());
     }
 
     /**

@@ -1,20 +1,17 @@
-# 🎵 Radio Schedule Elementor Widgets - Installation Guide
+# 🎵 Radio Schedule Elementor Widget - Installation Guide
 
 ## 🎯 **What This Plugin Does:**
 
-Creates **2 Custom Elementor Widgets** that you can drag and drop:
+Creates **1 Powerful Elementor Widget** that combines display and management:
 
-### **Widget 1: Radio Schedule Display**
+### **📅 Radio Schedule Widget**
 - 📺 **Shows your radio schedule** with current and upcoming shows
+- ✏️ **Add/Edit shows directly in Elementor** - no WordPress posts needed
 - 🎨 **Fully customizable** in Elementor (colors, gradients, layout)
+- 🖼️ **Upload images from your computer** or media library
 - 📱 **Mobile responsive** with day navigation
 - 🔴 **Live indicators** for currently broadcasting shows
-
-### **Widget 2: Radio Show Manager**
-- ✏️ **Add/Edit/Delete shows** directly in Elementor
-- 📝 **Easy form interface** - no WordPress admin needed
-- 🖼️ **Image upload support** with URL input
-- 👥 **User permission controls** (admin, editor, etc.)
+- 👥 **Management panel** for authorized users
 
 ## 🚀 **Installation Steps:**
 
@@ -29,144 +26,143 @@ Creates **2 Custom Elementor Widgets** that you can drag and drop:
 ✅ **WordPress 5.0+**
 ✅ **PHP 7.0+**
 
-### **Step 3: Find Your New Widgets**
+### **Step 3: Find Your New Widget**
 1. **Edit any page with Elementor**
 2. **In the widget panel**, look for:
-   - 📅 **"Radio Schedule Display"** (in General category)
-   - ✏️ **"Radio Show Manager"** (in General category)
+   - 📅 **"Radio Schedule"** (in General category)
 
 ## 🎨 **How to Use:**
 
-### **Radio Schedule Display Widget:**
+### **Adding the Widget:**
 
-1. **Drag "Radio Schedule Display"** to your page
-2. **Customize in the left panel:**
-   - **Station Name:** Your radio station name
-   - **Show Header:** Toggle station name and day buttons
-   - **Show Day Navigation:** Toggle day selection buttons
-   - **Show Upcoming:** Toggle upcoming shows section
-   - **Max Shows:** How many upcoming shows to display
-   - **Background Gradient:** Choose from presets or custom
-   - **Border Radius:** Adjust corner roundness
+1. **Drag "Radio Schedule"** to your page
+2. **Configure in the left panel under "Schedule Settings":**
 
-3. **Style Options:**
-   - Blue to Purple (default)
-   - Orange to Red
-   - Green to Blue
-   - Purple to Pink
-   - Custom gradient (enter your own CSS)
+### **Schedule Settings:**
+- **Station Name:** Your radio station name
+- **Show Header:** Toggle station name and day buttons
+- **Show Day Navigation:** Toggle day selection buttons
+- **Show Upcoming:** Toggle upcoming shows section
+- **Max Shows:** How many upcoming shows to display
 
-### **Radio Show Manager Widget:**
+### **Management Settings:**
+- **Show Management Panel:** Enable for authorized users to see management tips
+- **Management Access Level:** Who can see management features
 
-1. **Drag "Radio Show Manager"** to a page (admin/staff page)
-2. **Customize settings:**
-   - **Manager Title:** Heading for the management section
-   - **Show Add Form:** Toggle the "Add New Show" form
-   - **Show Existing Shows:** Toggle the list of current shows
-   - **Access Level:** Who can use this (Admin, Editor, Author, etc.)
-   - **Form Background:** Background color for forms
-   - **Button Color:** Color for action buttons
+### **Adding Radio Shows:**
+**This is the key improvement!** All show management is now in Elementor:
 
-3. **Add Shows Directly in Elementor:**
-   - Fill in show title, host, times, days
-   - Select days with checkboxes
-   - Add show description
-   - Enter image URL (upload to media library first)
-   - Click "Add Show"
+1. **Scroll down to "Radio Shows" section**
+2. **Click "Add Item" to add a new show**
+3. **For each show, configure:**
+   - **Show Title:** Name of your show
+   - **Host/DJ Name:** Who hosts the show
+   - **Show Image:** Click to upload from your computer or media library
+   - **Start Time:** 24-hour format (06:00, 14:30)
+   - **End Time:** 24-hour format (10:00, 18:00)
+   - **Show Days:** Select multiple days (Monday, Tuesday, etc.)
+   - **Show Description:** Brief description of the show
+   - **Live Show:** Toggle if it's live or recorded
+
+4. **Add more shows** by clicking "Add Item" again
+5. **Reorder shows** by dragging the items up/down
+6. **Delete shows** by clicking the X on any item
+
+### **Style Options:**
+- **Background Gradient:** Choose from presets or custom
+- **Border Radius:** Adjust corner roundness
+- **Custom Gradient:** Enter your own CSS gradient
+
+## ✨ **Key Improvements:**
+
+### **✅ Everything in One Widget:**
+- No separate manager widget needed
+- All controls in one place
+- Easier to manage and understand
+
+### **✅ Direct Image Upload:**
+- Click "Choose Image" to upload from your computer
+- Access your WordPress media library
+- No need to copy/paste URLs
+- Images automatically get rounded corners
+
+### **✅ Visual Show Management:**
+- Add unlimited shows directly in Elementor
+- See all your shows listed in the editor
+- Drag to reorder, click X to delete
+- Real-time preview of changes
+
+### **✅ No WordPress Posts Needed:**
+- All data stored in Elementor widget settings
+- No custom post types or database complexity
+- Everything managed visually
+- Works immediately after adding shows
 
 ## 🎯 **Typical Setup:**
 
-### **For Visitors (Public Page):**
-1. **Add "Radio Schedule Display" widget**
-2. **Configure:** Station name, show header, day navigation
-3. **Style:** Choose gradient and colors to match your brand
-4. **Result:** Beautiful schedule with current/upcoming shows
+### **For Public Pages:**
+1. **Add "Radio Schedule" widget**
+2. **Configure station name and styling**
+3. **Add your radio shows in the "Radio Shows" section**
+4. **Set "Show Management Panel" to "No"**
+5. **Publish page**
 
-### **For Staff (Admin Page):**
-1. **Create a private/admin page**
-2. **Add "Radio Show Manager" widget**
-3. **Set access level** to "Editor" or "Administrator"
-4. **Staff can now add/edit shows** without WordPress admin
-
-## ✨ **Widget Features:**
-
-### **Radio Schedule Display:**
-- ✅ **Real-time updates** every 2 minutes
-- ✅ **Day navigation** (Today, Mon, Tue, etc.)
-- ✅ **Live show detection** with 🔴 LIVE badges
-- ✅ **Rounded images** (20px border-radius)
-- ✅ **Gradient backgrounds** (customizable)
-- ✅ **Mobile responsive** with touch support
-- ✅ **Loading states** and error handling
-- ✅ **No shows messaging** when schedule is empty
-
-### **Radio Show Manager:**
-- ✅ **Add new shows** with easy form
-- ✅ **Edit existing shows** (click Edit button)
-- ✅ **Delete shows** with confirmation
-- ✅ **Day checkboxes** (no typing needed)
-- ✅ **Time pickers** (24-hour format)
-- ✅ **Image URL support** (paste image links)
-- ✅ **User permission controls**
-- ✅ **Responsive form design**
-
-## 🔧 **Customization:**
-
-### **Colors & Gradients:**
-Each widget has style controls in Elementor:
-- Background gradients (presets + custom)
-- Button colors
-- Border radius
-- Form backgrounds
-
-### **Content Controls:**
-- Station name
-- Section visibility toggles
-- Maximum shows to display
-- User access levels
+### **For Staff/Admin Pages:**
+1. **Add "Radio Schedule" widget**
+2. **Set "Show Management Panel" to "Yes"**
+3. **Set appropriate "Management Access Level"**
+4. **Staff see management tips and can edit in Elementor**
 
 ## 📱 **Mobile Features:**
 - Touch-friendly day navigation
 - Responsive grid layouts
 - Swipe support for day switching
-- Optimized form inputs for mobile
+- Optimized image display
+- Fast loading with efficient updates
 
 ## 🆘 **Troubleshooting:**
 
-### **Widgets Not Appearing?**
+### **Widget Not Appearing?**
 - Check that Elementor is installed and activated
 - Make sure plugin is activated
 - Try refreshing Elementor editor
 
 ### **Shows Not Loading?**
-- Use the Radio Show Manager widget to add shows first
+- Add shows in the "Radio Shows" section of the widget
 - Check that shows have correct days and times
-- Verify user permissions for manager widget
+- Verify times are in 24-hour format (06:00, not 6:00 AM)
 
-### **Styling Issues?**
-- CSS is included automatically with the plugin
-- Clear any caching plugins
-- Check browser console for errors
+### **Images Not Showing?**
+- Use the "Choose Image" button to upload properly
+- Make sure images are uploaded to WordPress media library
+- Check that image URLs are accessible
+
+### **Management Panel Not Visible?**
+- Set "Show Management Panel" to "Yes"
+- Check user has appropriate permissions
+- Verify "Management Access Level" setting
 
 ## 🎉 **Benefits Over Previous Versions:**
 
-- ✅ **No functions.php editing** needed
-- ✅ **No file uploads** to theme folders
-- ✅ **No shortcodes** to remember
-- ✅ **Visual editing** in Elementor
-- ✅ **Drag and drop** interface
-- ✅ **Real-time preview** while editing
-- ✅ **Built-in styling controls**
-- ✅ **User-friendly** for non-technical staff
+- ✅ **Single widget** instead of two separate widgets
+- ✅ **No WordPress posts** needed - everything in Elementor
+- ✅ **Direct image upload** from computer/media library
+- ✅ **Visual show management** with drag/drop reordering
+- ✅ **Real-time preview** of all changes
+- ✅ **Simplified workflow** - add shows where you design
+- ✅ **No database complexity** - all data in widget settings
+- ✅ **Instant updates** - changes appear immediately
 
 ## 🚀 **Perfect For:**
 
-- Radio stations wanting **easy content management**
+- Radio stations wanting **simple content management**
 - **Non-technical staff** who need to update schedules
-- **Multiple user levels** (admin, editor, staff)
-- **Custom branded** radio schedule displays
+- **Visual editors** who prefer Elementor interface
+- **Quick setup** without complex WordPress configuration
 - **Mobile-first** radio station websites
 
 ---
 
-**This is the ultimate solution - manage everything visually in Elementor!** 🎵
+**This is the ultimate solution - manage everything visually in one Elementor widget!** 🎵
+
+**No WordPress posts, no separate widgets, no complex setup - just drag, drop, and configure!**

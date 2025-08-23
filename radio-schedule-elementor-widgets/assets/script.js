@@ -1,5 +1,6 @@
 /**
  * Radio Schedule Elementor Widgets - JavaScript
+ * Updated for combined widget with Elementor data
  */
 
 (function($) {
@@ -11,13 +12,23 @@
             this.container = $(container);
             this.currentDay = this.getCurrentDay();
             this.updateInterval = null;
-            this.retryCount = 0;
-            this.maxRetries = 3;
+            this.showsData = [];
             
             this.init();
         }
         
         init() {
+            // Get shows data from the widget
+            const showsDataAttr = this.container.attr('data-shows');
+            if (showsDataAttr) {
+                try {
+                    this.showsData = JSON.parse(showsDataAttr);
+                } catch (e) {
+                    console.error('Error parsing shows data:', e);
+                    this.showsData = [];
+                }
+            }
+            
             this.bindEvents();
             this.loadShows(this.currentDay);
             this.startAutoUpdate();
@@ -52,45 +63,53 @@
             
             this.showLoading();
             
-            if (typeof radio_ajax === 'undefined') {
-                console.error('radio_ajax is not defined');
-                this.showError('Configuration error. Please check plugin setup.');
-                return;
-            }
+            // Process shows data from Elementor
+            const currentTime = this.getCurrentTime();
+            const currentShows = [];
+            const upcomingShows = [];
             
-            $.ajax({
-                url: radio_ajax.ajax_url,
-                type: 'POST',
-                data: {
-                    action: 'get_radio_shows',
-                    day: day,
-                    nonce: radio_ajax.nonce
-                },
-                success: (response) => {
-                    if (response.success) {
-                        this.renderShows(response.data);
-                        this.retryCount = 0;
-                    } else {
-                        console.error('AJAX Error:', response);
-                        this.showError('Failed to load shows. Please try again.');
-                    }
-                },
-                error: (xhr, status, error) => {
-                    console.error('AJAX Error:', error, xhr);
-                    if (this.retryCount < this.maxRetries) {
-                        this.retryCount++;
-                        setTimeout(() => this.loadShows(day), 2000);
-                    } else {
-                        this.showError('Unable to connect to server. Please check your internet connection.');
+            this.showsData.forEach(show => {
+                // Check if show airs on this day
+                const showDays = show.days.toLowerCase().split(',');
+                if (!showDays.includes(day)) {
+                    return;
+                }
+                
+                const showData = {
+                    title: show.title,
+                    host: show.host,
+                    start_time: show.start_time,
+                    end_time: show.end_time,
+                    image: show.image || this.getDefaultImage(),
+                    description: show.description,
+                    formatted_time: show.formatted_time,
+                    is_live: show.is_live
+                };
+                
+                // Check if show is currently on (only for today)
+                if (day === this.getCurrentDay() && show.start_time && show.end_time) {
+                    if (currentTime >= show.start_time && currentTime <= show.end_time) {
+                        currentShows.push(showData);
+                    } else if (show.start_time > currentTime) {
+                        upcomingShows.push(showData);
                     }
                 }
             });
+            
+            // Sort upcoming shows by start time
+            upcomingShows.sort((a, b) => a.start_time.localeCompare(b.start_time));
+            
+            // Render shows
+            setTimeout(() => {
+                this.renderCurrentShows(currentShows);
+                this.renderUpcomingShows(upcomingShows);
+                this.updateLiveIndicator(currentShows.length > 0);
+            }, 500);
         }
         
-        renderShows(data) {
-            this.renderCurrentShows(data.current || []);
-            this.renderUpcomingShows(data.upcoming || []);
-            this.updateLiveIndicator(data.current && data.current.length > 0);
+        getCurrentTime() {
+            const now = new Date();
+            return now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
         }
         
         renderCurrentShows(shows) {
@@ -117,8 +136,11 @@
                 return;
             }
             
+            const maxShows = parseInt(this.container.attr('data-max-shows')) || 6;
+            const limitedShows = shows.slice(0, maxShows);
+            
             let html = '';
-            shows.forEach(show => {
+            limitedShows.forEach(show => {
                 html += this.getUpcomingCardHTML(show);
             });
             
@@ -198,18 +220,6 @@
             `);
         }
         
-        showError(message) {
-            const errorHTML = `
-                <div class="error-state">
-                    <h3>⚠️ Error Loading Shows</h3>
-                    <p>${message}</p>
-                </div>
-            `;
-            
-            this.container.find('#current-shows').html(errorHTML);
-            this.container.find('#upcoming-shows').html('');
-        }
-        
         updateLiveIndicator(hasLiveShows) {
             const indicator = this.container.find('.live-indicator');
             if (hasLiveShows) {
@@ -217,6 +227,10 @@
             } else {
                 indicator.hide();
             }
+        }
+        
+        getDefaultImage() {
+            return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDEwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiM5QzI3QjAiLz48dGV4dCB4PSI1MCIgeT0iNTUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxMiIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPlJBRElPPC90ZXh0Pjwvc3ZnPg==';
         }
         
         startAutoUpdate() {
@@ -234,179 +248,11 @@
         }
     }
     
-    // Radio Show Manager functionality
-    class RadioShowManager {
-        constructor(container) {
-            this.container = $(container);
-            this.currentEditId = null;
-            
-            this.init();
-        }
-        
-        init() {
-            this.bindEvents();
-            this.loadExistingShows();
-        }
-        
-        bindEvents() {
-            this.container.on('submit', '#radio-show-form', (e) => {
-                e.preventDefault();
-                this.saveShow();
-            });
-            
-            this.container.on('click', '.btn-edit', (e) => {
-                const showId = $(e.target).data('show-id');
-                this.editShow(showId);
-            });
-            
-            this.container.on('click', '.btn-delete', (e) => {
-                const showId = $(e.target).data('show-id');
-                if (confirm('Are you sure you want to delete this show?')) {
-                    this.deleteShow(showId);
-                }
-            });
-        }
-        
-        saveShow() {
-            const form = this.container.find('#radio-show-form');
-            const formData = new FormData(form[0]);
-            
-            // Get selected days
-            const selectedDays = [];
-            form.find('input[name="days[]"]:checked').each(function() {
-                selectedDays.push($(this).val());
-            });
-            
-            const data = {
-                action: 'save_radio_show',
-                nonce: radio_ajax.nonce,
-                title: formData.get('title'),
-                host: formData.get('host'),
-                start_time: formData.get('start_time'),
-                end_time: formData.get('end_time'),
-                days: selectedDays.join(','),
-                description: formData.get('description'),
-                image_url: formData.get('image_url'),
-                show_id: this.currentEditId
-            };
-            
-            $.ajax({
-                url: radio_ajax.ajax_url,
-                type: 'POST',
-                data: data,
-                success: (response) => {
-                    if (response.success) {
-                        alert('Show saved successfully!');
-                        form[0].reset();
-                        this.currentEditId = null;
-                        this.loadExistingShows();
-                    } else {
-                        alert('Error saving show: ' + response.data);
-                    }
-                },
-                error: (xhr, status, error) => {
-                    alert('Error saving show. Please try again.');
-                    console.error('Save error:', error);
-                }
-            });
-        }
-        
-        editShow(showId) {
-            // This would load show data into the form
-            // For now, we'll just set the edit ID
-            this.currentEditId = showId;
-            alert('Edit functionality would load show data into the form');
-        }
-        
-        deleteShow(showId) {
-            $.ajax({
-                url: radio_ajax.ajax_url,
-                type: 'POST',
-                data: {
-                    action: 'delete_radio_show',
-                    nonce: radio_ajax.nonce,
-                    show_id: showId
-                },
-                success: (response) => {
-                    if (response.success) {
-                        alert('Show deleted successfully!');
-                        this.loadExistingShows();
-                    } else {
-                        alert('Error deleting show: ' + response.data);
-                    }
-                },
-                error: (xhr, status, error) => {
-                    alert('Error deleting show. Please try again.');
-                    console.error('Delete error:', error);
-                }
-            });
-        }
-        
-        loadExistingShows() {
-            const container = this.container.find('#shows-list');
-            
-            $.ajax({
-                url: radio_ajax.ajax_url,
-                type: 'POST',
-                data: {
-                    action: 'get_radio_shows',
-                    day: 'all',
-                    nonce: radio_ajax.nonce
-                },
-                success: (response) => {
-                    if (response.success && response.data.all_shows) {
-                        this.renderExistingShows(response.data.all_shows);
-                    } else {
-                        container.html('<p>No shows found.</p>');
-                    }
-                },
-                error: (xhr, status, error) => {
-                    container.html('<p>Error loading shows.</p>');
-                    console.error('Load error:', error);
-                }
-            });
-        }
-        
-        renderExistingShows(shows) {
-            const container = this.container.find('#shows-list');
-            
-            if (!shows || shows.length === 0) {
-                container.html('<p>No shows found. Create your first show above!</p>');
-                return;
-            }
-            
-            let html = '';
-            shows.forEach(show => {
-                html += `
-                    <div class="show-item">
-                        <div class="show-info">
-                            <h4>${show.title}</h4>
-                            <p><strong>Host:</strong> ${show.host}</p>
-                            <p><strong>Time:</strong> ${show.formatted_time}</p>
-                            <p><strong>Days:</strong> ${show.days || 'Not set'}</p>
-                        </div>
-                        <div class="show-actions">
-                            <button class="btn-edit" data-show-id="${show.id}">Edit</button>
-                            <button class="btn-delete" data-show-id="${show.id}">Delete</button>
-                        </div>
-                    </div>
-                `;
-            });
-            
-            container.html(html);
-        }
-    }
-    
     // Initialize widgets when document is ready
     $(document).ready(function() {
-        // Initialize Radio Schedule Display widgets
+        // Initialize Radio Schedule widgets
         $('.radio-schedule-container').each(function() {
             new RadioScheduleDisplay(this);
-        });
-        
-        // Initialize Radio Show Manager widgets
-        $('.radio-show-manager').each(function() {
-            new RadioShowManager(this);
         });
     });
     
@@ -417,10 +263,6 @@
                 // Reinitialize widgets when Elementor loads them
                 $scope.find('.radio-schedule-container').each(function() {
                     new RadioScheduleDisplay(this);
-                });
-                
-                $scope.find('.radio-show-manager').each(function() {
-                    new RadioShowManager(this);
                 });
             });
         }
