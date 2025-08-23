@@ -1,0 +1,155 @@
+<!-- 
+UNIVERSAL RADIO SCHEDULE - ELEMENTOR HTML TEMPLATE
+Copy this HTML into your Elementor HTML widget
+
+INSTRUCTIONS:
+1. In Elementor, add an "HTML" widget
+2. Copy and paste ALL the code below
+3. Save and view your page
+4. The schedule will load automatically from WordPress
+-->
+
+<div id="radio-schedule" class="radio-schedule-container" data-view="current" data-max-shows="6">
+    
+    <!-- Header Section -->
+    <div class="schedule-header">
+        <h2 id="station-name">Radio Schedule</h2>
+        
+        <!-- Day Navigation Buttons -->
+        <div class="schedule-controls">
+            <button class="day-btn active" data-day="today">Today</button>
+            <button class="day-btn" data-day="monday">Mon</button>
+            <button class="day-btn" data-day="tuesday">Tue</button>
+            <button class="day-btn" data-day="wednesday">Wed</button>
+            <button class="day-btn" data-day="thursday">Thu</button>
+            <button class="day-btn" data-day="friday">Fri</button>
+            <button class="day-btn" data-day="saturday">Sat</button>
+            <button class="day-btn" data-day="sunday">Sun</button>
+        </div>
+        
+        <!-- Live Indicator (shows when live shows are on) -->
+        <div class="live-indicator" style="display: none;">
+            🔴 LIVE NOW
+        </div>
+    </div>
+    
+    <!-- Current/Live Shows Section -->
+    <div class="current-shows-section">
+        <h3 class="section-title">Now Playing</h3>
+        <div class="current-shows-grid" id="current-shows">
+            <!-- Loading state - will be replaced by JavaScript -->
+            <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>Loading current shows...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Upcoming Shows Section -->
+    <div class="upcoming-section">
+        <h3 class="section-title">Coming Up Next</h3>
+        <div class="upcoming-shows" id="upcoming-shows">
+            <!-- Loading state - will be replaced by JavaScript -->
+            <div class="loading-state">
+                <div class="loading-spinner"></div>
+                <p>Loading upcoming shows...</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Full Day Schedule (hidden by default) -->
+    <div class="all-shows-section" style="display: none;">
+        <h3 class="section-title">Full Schedule</h3>
+        <div class="all-shows-grid" id="all-shows">
+            <!-- Shows will be loaded here when viewing full day -->
+        </div>
+    </div>
+    
+</div>
+
+<!-- JavaScript will automatically load shows from WordPress -->
+<script>
+// Initialize the schedule when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    // Set today's day as active
+    const today = new Date().toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+    const todayBtn = document.querySelector('.day-btn[data-day="today"]');
+    if (todayBtn) {
+        todayBtn.setAttribute('data-day', today);
+    }
+    
+    // Auto-load shows if WordPress and jQuery are ready
+    if (typeof jQuery !== 'undefined' && typeof radio_ajax !== 'undefined') {
+        if (window.radioSchedule) {
+            window.radioSchedule.refresh();
+        }
+    } else {
+        // Fallback: try again in 2 seconds
+        setTimeout(function() {
+            if (window.radioSchedule) {
+                window.radioSchedule.refresh();
+            }
+        }, 2000);
+    }
+});
+</script>
+
+<!-- 
+IMPORTANT NOTES:
+
+1. This HTML will show "Loading..." initially
+2. JavaScript will automatically replace the loading content with real shows
+3. When you add radio shows in WordPress, they will appear here automatically
+4. The schedule updates every 2 minutes
+5. Featured images from WordPress posts will show with rounded corners
+
+TROUBLESHOOTING:
+- If shows don't load, check that the PHP code is in functions.php
+- Make sure CSS and JS files are uploaded to your theme
+- Create at least one radio show post in WordPress admin
+- Check browser console for any JavaScript errors
+
+CUSTOMIZATION:
+- Change "Radio Schedule" to your station name
+- Modify section titles ("Now Playing", "Coming Up Next")
+- Add or remove day buttons as needed
+- Adjust data-max-shows to show more/fewer upcoming shows
+-->
+
+<style>
+/* Basic styling - full styles are in the CSS file */
+.radio-schedule-container {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.loading-state {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.loading-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid #ff6b35;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Ensure the container is visible */
+#radio-schedule {
+    min-height: 200px;
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+}
+</style>

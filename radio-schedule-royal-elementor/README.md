@@ -1,124 +1,160 @@
-# 🎵 HIGHWAY RADIO SCHEDULE - ROYAL ELEMENTOR ADDONS
-## Complete Setup Guide (Clean Version)
+# Universal Radio Schedule System for WordPress & Elementor
 
-### 📋 WHAT YOU GET:
-- ✅ Auto-updating radio schedule (updates every 60 seconds)
-- ✅ Shows 3 current live shows in professional grid
-- ✅ Displays upcoming shows for the day
-- ✅ Easy admin interface for radio station staff
-- ✅ Mobile responsive design
-- ✅ Professional radio station look with animations
-- ✅ Perfect integration with Royal Elementor Addons
+A modern, responsive radio schedule system that works with **ANY** radio station website built with WordPress and Elementor. Features real-time updates, beautiful rounded image design, and seamless WordPress integration.
 
----
+![Radio Schedule Preview](https://img.shields.io/badge/WordPress-Compatible-blue) ![Elementor Ready](https://img.shields.io/badge/Elementor-Ready-green) ![Mobile Responsive](https://img.shields.io/badge/Mobile-Responsive-orange)
 
-## 🚀 INSTALLATION (4 SIMPLE STEPS)
+## ✨ Key Features
 
-### STEP 1: ADD PHP CODE
-1. **WordPress Admin → Appearance → Theme Editor**
-2. **Select functions.php**
-3. **Scroll to bottom** and paste code from `functions.php`
-4. **Click Update File**
+- **🌍 Universal Compatibility**: Works with any radio station name
+- **📱 Mobile Responsive**: Perfect on all devices
+- **🔄 Real-time Updates**: Shows current and upcoming programs
+- **🎨 Modern Design**: Rounded images, gradient backgrounds, smooth animations
+- **⚡ WordPress Integration**: Syncs with WordPress posts and featured images
+- **📅 Week Navigation**: Browse schedule for any day
+- **🔴 Live Indicators**: Visual indicators for currently broadcasting shows
+- **🎯 Elementor Ready**: Easy integration with Elementor page builder
 
-### STEP 2: UPLOAD JAVASCRIPT
-1. **Access your website files** (FTP/File Manager)
-2. **Go to:** `/wp-content/themes/YOUR-THEME-NAME/js/`
-3. **Create `js` folder** if it doesn't exist
-4. **Upload:** `radio-schedule.js`
+## 🚀 Quick Start
 
-### STEP 3: ADD ROYAL ELEMENTOR CSS WIDGET
-1. **Edit page with Elementor**
-2. **Add "Custom CSS" widget** (Royal Elementor Addons)
-3. **Settings:**
-   - **CSS Selector:** `.radio-schedule-container`
-   - **CSS Code:** Paste from `styles.css`
-   - **Apply CSS to:** Current Page
+### 1. Install PHP Code
+Add the contents of `functions-php-code-only.php` to your theme's `functions.php`:
+- WordPress Admin → Appearance → Theme Editor → functions.php
+- Scroll to the bottom and paste the code
+- Click Update File
 
-### STEP 4: ADD HTML WIDGET
-1. **Add HTML widget** (below CSS widget)
-2. **Paste code from:** `schedule.html`
-3. **Save and test!**
-
----
-
-## 📺 CREATE YOUR FIRST SHOW
-
-### QUICK TEST:
-1. **WordPress Admin → Radio Shows → Add New**
-2. **Fill in:**
-   ```
-   Title: Test Morning Show
-   Days: monday,tuesday,wednesday,thursday,friday
-   Start Time: 09:00
-   End Time: 12:00
-   Host Name: Test DJ
-   ```
-3. **Add featured image**
-4. **Publish and check your page!**
-
----
-
-## 🎯 WIDGET ORDER (IMPORTANT!)
+### 2. Upload Files
+Upload these files to your theme:
 ```
-1. Custom CSS Widget (Royal Elementor)
-   ├── CSS Selector: .radio-schedule-container
-   └── CSS Code: [from styles.css]
-
-2. HTML Widget (Elementor)
-   └── HTML Code: [from schedule.html]
+/wp-content/themes/your-theme/css/universal-radio-schedule.css
+/wp-content/themes/your-theme/js/universal-radio-schedule.js
 ```
 
+### 3. Add to Elementor
+- Add HTML widget in Elementor
+- Copy contents of `elementor-html-template.html`
+- Paste into the HTML widget
+
+### 4. Create Shows
+- Go to WordPress Admin → Radio Shows
+- Add your first radio show with featured image
+- Set schedule times and days
+
+## 📁 File Structure
+
+```
+radio-schedule-royal-elementor/
+├── functions-php-code-only.php      # WordPress integration (add to functions.php)
+├── universal-radio-schedule.css     # Modern styling with rounded images
+├── universal-radio-schedule.js      # Interactive functionality
+├── elementor-html-template.html     # HTML template for Elementor
+├── UNIVERSAL-README.md              # Detailed documentation
+├── STAFF-GUIDE.md                   # Guide for radio station staff
+└── README.md                        # This file
+```
+
+## 🎨 Customization
+
+### Change Brand Colors
+Edit CSS variables:
+```css
+:root {
+    --primary-color: #ff6b35;        /* Your brand color */
+    --secondary-color: #f7931e;      /* Secondary color */
+    --background-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+```
+
+### Station-Specific Themes
+Pre-built themes available:
+- **Blue Theme**: Professional blue colors
+- **Green Theme**: Nature/eco-friendly colors  
+- **Purple Theme**: Creative/artistic colors
+
+## 📋 Usage
+
+### Basic Shortcode
+```
+[radio_schedule]
+```
+
+### Advanced Options
+```
+[radio_schedule view="today" max_shows="8" show_header="true"]
+```
+
+### Parameters
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `view` | `current` | `current`, `today`, or `week` |
+| `show_header` | `true` | Show/hide header section |
+| `show_upcoming` | `true` | Show/hide upcoming shows |
+| `max_shows` | `6` | Maximum shows to display |
+
+## 🎯 Perfect For
+
+- ✅ Community radio stations
+- ✅ Commercial radio stations
+- ✅ Online radio stations
+- ✅ Podcast networks
+- ✅ Church radio
+- ✅ College radio
+- ✅ International stations
+
+## 📱 Mobile Features
+
+- **Swipe Navigation**: Swipe between days
+- **Touch Friendly**: Large touch targets
+- **Responsive Design**: Adapts to all screen sizes
+- **Fast Loading**: Optimized for mobile
+
+## 🛠️ Requirements
+
+- WordPress 5.0+
+- Elementor (any version)
+- PHP 7.4+
+- Modern web browser
+
+## 📖 Documentation
+
+- **UNIVERSAL-README.md**: Complete installation guide
+- **STAFF-GUIDE.md**: Guide for radio station staff
+- **elementor-html-template.html**: Ready-to-use HTML template
+
+## 🆘 Support
+
+### Common Issues
+- **Shows not loading**: Check functions.php installation
+- **Images not rounded**: Verify CSS file upload
+- **Mobile layout issues**: Clear cache and test
+
+### Getting Help
+1. Check browser console for errors
+2. Verify all files are uploaded correctly
+3. Test with default WordPress theme
+4. Check WordPress debug logs
+
+## 🎉 What's New
+
+- ✅ **Universal compatibility** (works with any radio station)
+- ✅ **Proper WordPress integration** with posts and images
+- ✅ **Rounded image corners** for modern look
+- ✅ **Better mobile experience** with swipe navigation
+- ✅ **Real-time updates** every 2 minutes
+- ✅ **Week navigation** to view any day
+- ✅ **Live show detection** with visual indicators
+- ✅ **SEO optimization** with proper post structure
+
+## 📄 License
+
+This project is open source and available under the MIT License.
+
+## 🌟 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
 ---
 
-## 📱 FEATURES INCLUDED
+**Made with ❤️ for radio stations worldwide**
 
-### FOR VISITORS:
-- **Live shows display** with pulsing "LIVE" indicator
-- **Upcoming shows** with times and DJ names
-- **Auto-updates** every minute without page refresh
-- **Mobile responsive** design
-- **Professional animations** and hover effects
-
-### FOR RADIO STAFF:
-- **Easy show management** through WordPress admin
-- **Simple form fields:** Title, Days, Times, Host, Image
-- **No technical knowledge** required
-- **Clear instructions** and examples provided
-
----
-
-## 🔧 TROUBLESHOOTING
-
-### IF SHOWS DON'T APPEAR:
-1. **Check CSS Selector:** Must be `.radio-schedule-container`
-2. **Check widget order:** CSS widget above HTML widget
-3. **Clear cache:** Elementor → Tools → Regenerate CSS
-4. **Check browser console** for JavaScript errors
-
-### COMMON ISSUES:
-- **Days format:** Use `monday,tuesday,friday` (lowercase, no spaces)
-- **Time format:** Use `09:00` not `9:00 AM`
-- **File path:** JavaScript must be in `/themes/YOUR-THEME/js/`
-
----
-
-## 📞 SUPPORT
-
-### QUICK CHECKLIST:
-- [ ] PHP code added to functions.php
-- [ ] JavaScript uploaded to correct folder
-- [ ] Royal Elementor CSS widget with selector
-- [ ] HTML widget with schedule code
-- [ ] Test show created
-- [ ] Page displays schedule
-
-### NEED HELP?
-1. **Check all 4 files are properly installed**
-2. **Verify Royal Elementor Addons is active**
-3. **Test with simple show first**
-4. **Check browser console for errors (F12)**
-
----
-
-**🎵 Ready to get your radio schedule live!**
-**📻 Professional, auto-updating, mobile-friendly radio schedule system.**
+*Transform your radio station's website with a modern, professional schedule system that works perfectly with WordPress and Elementor.*
