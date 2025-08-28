@@ -126,13 +126,16 @@ class NewsEventsElementor {
         }
         
         require_once NEWS_EVENTS_PLUGIN_PATH . 'widgets/news-display-widget.php';
+        require_once NEWS_EVENTS_PLUGIN_PATH . 'widgets/trending-news-widget.php';
         
         \Elementor\Plugin::instance()->widgets_manager->register_widget_type(new \NewsDisplayWidget());
+        \Elementor\Plugin::instance()->widgets_manager->register_widget_type(new \TrendingNewsWidget());
     }
     
     public function enqueue_scripts() {
         wp_enqueue_script('news-events-js', NEWS_EVENTS_PLUGIN_URL . 'assets/news-events-script.js', ['jquery'], '1.0.0', true);
         wp_enqueue_style('news-events-css', NEWS_EVENTS_PLUGIN_URL . 'assets/news-events-style.css', [], '1.0.0');
+        wp_enqueue_style('trending-news-css', NEWS_EVENTS_PLUGIN_URL . 'assets/trending-news-style.css', [], '1.0.0');
         
         wp_localize_script('news-events-js', 'newsEventsAjax', [
             'ajaxurl' => admin_url('admin-ajax.php'),
