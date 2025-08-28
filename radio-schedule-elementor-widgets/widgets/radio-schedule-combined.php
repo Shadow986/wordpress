@@ -332,6 +332,7 @@ class Radio_Schedule_Combined_Widget extends \Elementor\Widget_Base {
                     'green_blue' => esc_html__('Green to Blue', 'radio-schedule-elementor'),
                     'purple_pink' => esc_html__('Purple to Pink', 'radio-schedule-elementor'),
                     'custom' => esc_html__('Custom', 'radio-schedule-elementor'),
+                    'custom_colors' => esc_html__('Custom Colors', 'radio-schedule-elementor'),
                 ],
             ]
         );
@@ -348,7 +349,51 @@ class Radio_Schedule_Combined_Widget extends \Elementor\Widget_Base {
                 ],
             ]
         );
+        $this->add_control(
+            'gradient_color_1',
+            [
+                'label' => esc_html__('Gradient Color 1', 'radio-schedule-elementor'),
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'default' => '#667eea',
+                'condition' => [
+                    'background_gradient' => 'custom_colors',
+                ],
+            ]
+        );
 
+        $this->add_control(
+            'gradient_color_2',
+            [
+                'label' => esc_html__('Gradient Color 2', 'radio-schedule-elementor'),
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'default' => '#764ba2',
+                'condition' => [
+                    'background_gradient' => 'custom_colors',
+                ],
+            ]
+        );
+
+        $this->add_control(
+            'gradient_direction',
+            [
+                'label' => esc_html__('Gradient Direction', 'radio-schedule-elementor'),
+                'type' => \Elementor\Controls_Manager::SELECT,
+                'default' => '135deg',
+                'options' => [
+                    '0deg' => esc_html__('Top to Bottom', 'radio-schedule-elementor'),
+                    '45deg' => esc_html__('Top Left to Bottom Right', 'radio-schedule-elementor'),
+                    '90deg' => esc_html__('Left to Right', 'radio-schedule-elementor'),
+                    '135deg' => esc_html__('Bottom Left to Top Right', 'radio-schedule-elementor'),
+                    '180deg' => esc_html__('Bottom to Top', 'radio-schedule-elementor'),
+                    '225deg' => esc_html__('Bottom Right to Top Left', 'radio-schedule-elementor'),
+                    '270deg' => esc_html__('Right to Left', 'radio-schedule-elementor'),
+                    '315deg' => esc_html__('Top Right to Bottom Left', 'radio-schedule-elementor'),
+                ],
+                'condition' => [
+                    'background_gradient' => 'custom_colors',
+                ],
+            ]
+        );
         $this->add_control(
             'border_radius',
             [
@@ -526,7 +571,16 @@ class Radio_Schedule_Combined_Widget extends \Elementor\Widget_Base {
             'custom' => $custom ?: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
         ];
 
-        return $gradients[$type] ?? $gradients['blue_purple'];
+        // Handle custom colors
+        if ($type === 'custom_colors') {
+            $settings = $this->get_settings_for_display();
+            $color1 = $settings['gradient_color_1'] ?? '#667eea';
+            $color2 = $settings['gradient_color_2'] ?? '#764ba2';
+            $direction = $settings['gradient_direction'] ?? '135deg';
+            return "linear-gradient({$direction}, {$color1} 0%, {$color2} 100%)";
+        }
+
+        return $gradients[$type] ?? $gradients['blue_purple'];        return $gradients[$type] ?? $gradients['blue_purple'];
     }
 
     /**
