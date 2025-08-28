@@ -530,7 +530,11 @@ class Radio_Schedule_Combined_Widget extends \Elementor\Widget_Base {
                 </div>
             </div>
             <?php endif; ?>
-        </div>
+            
+            <!-- Attribution -->
+            <div class="widget-attribution" style="text-align: center; margin-top: 20px; padding: 10px; font-size: 12px; color: rgba(255,255,255,0.7); border-top: 1px solid rgba(255,255,255,0.1);">
+                by <strong>Ascend Creative Archie</strong>
+            </div>        </div>
 
         <style>
         .management-panel {
