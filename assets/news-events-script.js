@@ -401,6 +401,46 @@ function submitEventForm(form) {
     });
 }
 
+// Submit quick add form
+function submitQuickAdd(form) {
+    const formData = new FormData(form[0]);
+    formData.append('action', 'quick_add_content');
+    formData.append('nonce', newsEventsAjax.nonce);
+    
+    const submitBtn = form.find('.add-btn');
+    const originalText = submitBtn.text();
+    submitBtn.text('Adding...').prop('disabled', true);
+    
+    $.ajax({
+        url: newsEventsAjax.ajaxurl,
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function(response) {
+            if (response.success) {
+                form[0].reset();
+                $('.event-fields').hide();
+                alert('Content added successfully!');
+                
+                // Reload the content
+                const widgetId = form.data('widget-id');
+                const container = $('#' + widgetId);
+                const settings = container.data('settings') || {};
+                loadContentForWidget(widgetId, settings);
+            } else {
+                alert('Error: ' + response.data);
+            }
+        },
+        error: function() {
+            alert('Failed to add content. Please try again.');
+        },
+        complete: function() {
+            submitBtn.text(originalText).prop('disabled', false);
+        }
+    });
+}
+
 // Utility functions
 function formatDate(dateString) {
     const date = new Date(dateString);

@@ -12,6 +12,63 @@
     font-weight: bold;
 }
 
+/* Quick Add Panel */
+.quick-add-panel {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.quick-add-panel h3 {
+    margin: 0 0 15px 0;
+    color: white;
+    font-size: 18px;
+}
+
+.quick-add-form .form-row {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.quick-add-form input,
+.quick-add-form select,
+.quick-add-form textarea {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    background: rgba(255,255,255,0.9);
+}
+
+.quick-add-form textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.add-btn {
+    background: #28a745;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.add-btn:hover {
+    background: #218838;
+}
+
+.event-fields {
+    display: none;
+}
+
 /* Management Panel */
 .management-panel {
     background: #f8f9fa;

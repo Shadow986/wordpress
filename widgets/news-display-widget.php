@@ -405,11 +405,128 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
         
         $this->end_controls_section();
         
+        // Quick Add Content Section
+        $this->start_controls_section(
+            'quick_content_section',
+            [
+                'label' => 'Add Content',
+                'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
+            ]
+        );
+        
+        $this->add_control(
+            'quick_add_type',
+            [
+                'label' => 'Add New',
+                'type' => \Elementor\Controls_Manager::SELECT,
+                'default' => 'news',
+                'options' => [
+                    'news' => 'News Item',
+                    'event' => 'Event',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'quick_title',
+            [
+                'label' => 'Title',
+                'type' => \Elementor\Controls_Manager::TEXT,
+                'placeholder' => 'Enter title...',
+            ]
+        );
+        
+        $this->add_control(
+            'quick_content',
+            [
+                'label' => 'Content/Description',
+                'type' => \Elementor\Controls_Manager::TEXTAREA,
+                'rows' => 4,
+                'placeholder' => 'Enter content...',
+            ]
+        );
+        
+        $this->add_control(
+            'quick_image',
+            [
+                'label' => 'Image',
+                'type' => \Elementor\Controls_Manager::MEDIA,
+                'default' => [
+                    'url' => '',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'quick_author',
+            [
+                'label' => 'Author',
+                'type' => \Elementor\Controls_Manager::TEXT,
+                'placeholder' => 'Author name...',
+            ]
+        );
+        
+        $this->add_control(
+            'quick_category',
+            [
+                'label' => 'Category',
+                'type' => \Elementor\Controls_Manager::SELECT,
+                'options' => [
+                    'breaking' => 'Breaking News',
+                    'sports' => 'Sports',
+                    'politics' => 'Politics',
+                    'entertainment' => 'Entertainment',
+                    'technology' => 'Technology',
+                    'health' => 'Health',
+                    'business' => 'Business',
+                    'conference' => 'Conference',
+                    'workshop' => 'Workshop',
+                    'webinar' => 'Webinar',
+                    'meetup' => 'Meetup',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'quick_date',
+            [
+                'label' => 'Date/Event Date',
+                'type' => \Elementor\Controls_Manager::DATE_TIME,
+                'condition' => [
+                    'quick_add_type' => 'event',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'quick_location',
+            [
+                'label' => 'Location',
+                'type' => \Elementor\Controls_Manager::TEXT,
+                'placeholder' => 'Event location...',
+                'condition' => [
+                    'quick_add_type' => 'event',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'add_content_button',
+            [
+                'label' => 'Add Content',
+                'type' => \Elementor\Controls_Manager::BUTTON,
+                'text' => 'Add Item',
+                'event' => 'add_content_item',
+            ]
+        );
+        
+        $this->end_controls_section();
+        
         // Management Section
         $this->start_controls_section(
             'management_section',
             [
-                'label' => 'Content Management',
+                'label' => 'Advanced Management',
                 'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
             ]
         );
@@ -417,10 +534,10 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
         $this->add_control(
             'show_management',
             [
-                'label' => 'Show Management Panel',
+                'label' => 'Show Full Management Panel',
                 'type' => \Elementor\Controls_Manager::SWITCHER,
                 'default' => 'no',
-                'description' => 'Enable to add/edit content directly in this widget',
+                'description' => 'Enable advanced content management interface',
             ]
         );
         
@@ -851,6 +968,43 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
                 </<?php echo esc_attr($settings['heading_tag']); ?>>
             <?php endif; ?>
             
+            <!-- Quick Add Content Form -->
+            <?php if (is_user_logged_in() && current_user_can('edit_posts')): ?>
+                <div class="quick-add-panel">
+                    <h3>Add New Content</h3>
+                    <form class="quick-add-form" data-widget-id="<?php echo $widget_id; ?>">
+                        <div class="form-row">
+                            <select name="content_type" required>
+                                <option value="news">News Item</option>
+                                <option value="event">Event</option>
+                            </select>
+                            <input type="text" name="title" placeholder="Title" required>
+                        </div>
+                        <textarea name="content" placeholder="Content/Description" rows="3" required></textarea>
+                        <div class="form-row">
+                            <input type="text" name="author" placeholder="Author">
+                            <input type="url" name="image_url" placeholder="Image URL">
+                        </div>
+                        <div class="form-row event-fields" style="display:none;">
+                            <input type="datetime-local" name="event_date">
+                            <input type="text" name="location" placeholder="Location">
+                        </div>
+                        <div class="form-row">
+                            <select name="category">
+                                <option value="">Select Category</option>
+                                <option value="breaking">Breaking News</option>
+                                <option value="sports">Sports</option>
+                                <option value="technology">Technology</option>
+                                <option value="business">Business</option>
+                                <option value="conference">Conference</option>
+                                <option value="workshop">Workshop</option>
+                            </select>
+                            <button type="submit" class="add-btn">Add Content</button>
+                        </div>
+                    </form>
+                </div>
+            <?php endif; ?>
+            
             <?php if ($settings['show_management'] === 'yes' && $this->can_manage_content($settings['allowed_roles'])): ?>
                 <div class="management-panel">
                     <?php $this->render_management_panel($settings); ?>
@@ -874,6 +1028,21 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
         <script>
         jQuery(document).ready(function($) {
             loadContentForWidget('<?php echo $widget_id; ?>', <?php echo json_encode($settings); ?>);
+            
+            // Show/hide event fields
+            $('select[name="content_type"]').change(function() {
+                if ($(this).val() === 'event') {
+                    $('.event-fields').show();
+                } else {
+                    $('.event-fields').hide();
+                }
+            });
+            
+            // Quick add form submission
+            $('.quick-add-form').submit(function(e) {
+                e.preventDefault();
+                submitQuickAdd($(this));
+            });
         });
         </script>
         <?php

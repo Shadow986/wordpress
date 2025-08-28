@@ -1,9 +1,20 @@
 <?php
 /**
  * Plugin Name: News & Events Elementor Widgets
- * Description: Complete news and events management system with Elementor widgets for drag-and-drop functionality
+ * Description: Professional news and events management system with custom Elementor widgets for easy content management and display. Created by Assend Creative - Archie.
  * Version: 1.0.0
- * Author: Your Name
+ * Author: Assend Creative - Archie
+ * Author URI: https://assendcreative.com
+ * Text Domain: news-events-elementor
+ * Domain Path: /languages
+ * Requires at least: 5.0
+ * Tested up to: 6.3
+ * Requires PHP: 7.0
+ * License: GPL v2 or later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * 
+ * Developed by Assend Creative - Archie
+ * Professional WordPress & Elementor Solutions
  */
 
 if (!defined('ABSPATH')) {
@@ -22,6 +33,9 @@ class NewsEventsElementor {
         add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
         add_action('wp_ajax_save_news_item', [$this, 'save_news_item']);
         add_action('wp_ajax_save_event_item', [$this, 'save_event_item']);
+        add_action('wp_ajax_quick_add_content', [$this, 'quick_add_content']);
+        add_action('wp_ajax_load_news_events_content', [$this, 'load_content']);
+        add_action('wp_ajax_nopriv_load_news_events_content', [$this, 'load_content']);
         add_action('wp_ajax_delete_news_item', [$this, 'delete_news_item']);
         add_action('wp_ajax_delete_event_item', [$this, 'delete_event_item']);
         add_action('wp_ajax_get_news_items', [$this, 'get_news_items']);
@@ -189,6 +203,76 @@ class NewsEventsElementor {
         } else {
             wp_send_json_error('Failed to save event');
         }
+    }
+    
+    public function quick_add_content() {
+        check_ajax_referer('news_events_nonce', 'nonce');
+        
+        if (!current_user_can('edit_posts')) {
+            wp_die('Unauthorized');
+        }
+        
+        global $wpdb;
+        
+        $content_type = sanitize_text_field($_POST['content_type']);
+        $title = sanitize_text_field($_POST['title']);
+        $content = wp_kses_post($_POST['content']);
+        $author = sanitize_text_field($_POST['author']);
+        $image_url = esc_url_raw($_POST['image_url']);
+        $category = sanitize_text_field($_POST['category']);
+        
+        if ($content_type === 'event') {
+            $table = $wpdb->prefix . 'event_items';
+            $event_date = sanitize_text_field($_POST['event_date']);
+            $location = sanitize_text_field($_POST['location']);
+            
+            $result = $wpdb->insert($table, [
+                'title' => $title,
+                'description' => $content,
+                'event_date' => $event_date,
+                'location' => $location,
+                'image_url' => $image_url,
+                'category' => $category
+            ]);
+        } else {
+            $table = $wpdb->prefix . 'news_items';
+            
+            $result = $wpdb->insert($table, [
+                'title' => $title,
+                'content' => $content,
+                'author' => $author,
+                'image_url' => $image_url,
+                'category' => $category,
+                'excerpt' => wp_trim_words($content, 20)
+            ]);
+        }
+        
+        if ($result) {
+            wp_send_json_success('Content added successfully');
+        } else {
+            wp_send_json_error('Failed to add content');
+        }
+    }
+    
+    public function load_content() {
+        check_ajax_referer('news_events_nonce', 'nonce');
+        
+        global $wpdb;
+        
+        $news_table = $wpdb->prefix . 'news_items';
+        $events_table = $wpdb->prefix . 'event_items';
+        
+        $news = $wpdb->get_results("SELECT * FROM $news_table ORDER BY created_at DESC LIMIT 10");
+        $events = $wpdb->get_results("SELECT * FROM $events_table ORDER BY created_at DESC LIMIT 10");
+        
+        wp_send_json_success([
+            'news' => $news,
+            'events' => $events,
+            'pagination' => [
+                'current_page' => 1,
+                'total_pages' => 1
+            ]
+        ]);
     }
     
     public function get_news_items() {
