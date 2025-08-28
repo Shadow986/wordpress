@@ -101,14 +101,8 @@ class NewsEventsElementor {
         }
         
         require_once NEWS_EVENTS_PLUGIN_PATH . 'widgets/news-display-widget.php';
-        require_once NEWS_EVENTS_PLUGIN_PATH . 'widgets/news-manager-widget.php';
-        require_once NEWS_EVENTS_PLUGIN_PATH . 'widgets/events-display-widget.php';
-        require_once NEWS_EVENTS_PLUGIN_PATH . 'widgets/events-manager-widget.php';
         
         \Elementor\Plugin::instance()->widgets_manager->register_widget_type(new \NewsDisplayWidget());
-        \Elementor\Plugin::instance()->widgets_manager->register_widget_type(new \NewsManagerWidget());
-        \Elementor\Plugin::instance()->widgets_manager->register_widget_type(new \EventsDisplayWidget());
-        \Elementor\Plugin::instance()->widgets_manager->register_widget_type(new \EventsManagerWidget());
     }
     
     public function enqueue_scripts() {

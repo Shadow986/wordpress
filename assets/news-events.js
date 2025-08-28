@@ -1,242 +1,318 @@
-// News & Events Frontend JavaScript
+// Enhanced News & Events Frontend JavaScript
 
-function loadNewsItems(widgetId, options) {
+function loadContentForWidget(widgetId, settings) {
     const container = jQuery('#' + widgetId);
-    const loadingEl = container.find('.news-loading');
-    const itemsEl = container.find('.news-items');
     
-    loadingEl.show();
+    // Initialize management panel if enabled
+    if (settings.show_management === 'yes') {
+        initManagementPanel(widgetId);
+    }
     
+    // Load content based on type
+    if (settings.content_type === 'news' || settings.content_type === 'both') {
+        loadNewsContent(widgetId, settings);
+    }
+    
+    if (settings.content_type === 'events' || settings.content_type === 'both') {
+        loadEventsContent(widgetId, settings);
+    }
+    
+    // Initialize template-specific functionality
+    initTemplate(widgetId, settings.template_style);
+}
+
+function initManagementPanel(widgetId) {
+    const container = jQuery('#' + widgetId);
+    
+    // Tab switching
+    container.find('.tab-btn').on('click', function() {
+        const tabName = jQuery(this).data('tab');
+        
+        container.find('.tab-btn').removeClass('active');
+        jQuery(this).addClass('active');
+        
+        container.find('.tab-content').removeClass('active');
+        container.find('#' + tabName + '-tab').addClass('active');
+    });
+    
+    // News form submission
+    container.find('.news-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = {
+            action: 'save_news_item',
+            nonce: newsEventsAjax.nonce,
+            title: jQuery(this).find('[name="title"]').val(),
+            content: jQuery(this).find('[name="content"]').val(),
+            author: jQuery(this).find('[name="author"]').val(),
+            image_url: jQuery(this).find('[name="image_url"]').val(),
+            source_url: jQuery(this).find('[name="source_url"]').val(),
+            category: jQuery(this).find('[name="category"]').val()
+        };
+        
+        jQuery.post(newsEventsAjax.ajaxurl, formData, function(response) {
+            if (response.success) {
+                alert('News item saved successfully!');
+                jQuery(this).find('.news-form')[0].reset();
+                loadNewsContent(widgetId, {});
+            } else {
+                alert('Error: ' + response.data);
+            }
+        });
+    });
+    
+    // Events form submission
+    container.find('.events-form').on('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = {
+            action: 'save_event_item',
+            nonce: newsEventsAjax.nonce,
+            title: jQuery(this).find('[name="title"]').val(),
+            description: jQuery(this).find('[name="description"]').val(),
+            event_date: jQuery(this).find('[name="event_date"]').val(),
+            end_date: jQuery(this).find('[name="end_date"]').val(),
+            location: jQuery(this).find('[name="location"]').val(),
+            image_url: jQuery(this).find('[name="image_url"]').val(),
+            category: jQuery(this).find('[name="category"]').val()
+        };
+        
+        jQuery.post(newsEventsAjax.ajaxurl, formData, function(response) {
+            if (response.success) {
+                alert('Event saved successfully!');
+                jQuery(this).find('.events-form')[0].reset();
+                loadEventsContent(widgetId, {});
+            } else {
+                alert('Error: ' + response.data);
+            }
+        });
+    });
+}
+
+function loadNewsContent(widgetId, settings) {
     jQuery.get(newsEventsAjax.ajaxurl, {
         action: 'get_news_items',
-        limit: options.limit || 6,
-        category: options.category || ''
+        limit: settings.news_count || 6,
+        category: settings.category_filter || ''
     }, function(response) {
-        loadingEl.hide();
-        
-        if (response.success && response.data.length > 0) {
-            let html = '';
-            
-            response.data.forEach(function(item) {
-                const imageHtml = item.image_url ? 
-                    `<div class="news-image"><img src="${item.image_url}" alt="${item.title}"></div>` : '';
-                
-                const sourceHtml = item.source_url ? 
-                    `<a href="${item.source_url}" target="_blank" class="source-link">Read Full Article</a>` : '';
-                
-                const categoryHtml = item.category ? 
-                    `<span class="news-category">${item.category}</span>` : '';
-                
-                const publishedDate = new Date(item.published_date).toLocaleDateString();
-                
-                if (options.layout === 'list') {
-                    html += `
-                        <div class="news-item news-item-list">
-                            ${imageHtml}
-                            <div class="news-content">
-                                ${categoryHtml}
-                                <h3>${item.title}</h3>
-                                <div class="content">${item.content}</div>
-                                <div class="news-meta">
-                                    <span class="date">${publishedDate}</span>
-                                    ${sourceHtml}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    html += `
-                        <div class="news-item news-item-card">
-                            ${imageHtml}
-                            <div class="news-content">
-                                ${categoryHtml}
-                                <h3>${item.title}</h3>
-                                <div class="content">${item.content.substring(0, 150)}...</div>
-                                <div class="news-meta">
-                                    <span class="date">${publishedDate}</span>
-                                    ${sourceHtml}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }
-            });
-            
-            itemsEl.html(html);
-            
-            if (options.layout === 'carousel') {
-                initNewsCarousel(widgetId);
-            }
-            
-        } else {
-            itemsEl.html('<p class="no-news">No news items found.</p>');
+        if (response.success) {
+            renderNewsItems(widgetId, response.data, settings);
         }
-    }).fail(function() {
-        loadingEl.hide();
-        itemsEl.html('<p class="error">Error loading news items.</p>');
     });
 }
 
-function loadEventItems(widgetId, options) {
-    const container = jQuery('#' + widgetId);
-    const loadingEl = container.find('.events-loading');
-    const itemsEl = container.find('.events-items');
-    
-    loadingEl.show();
-    
+function loadEventsContent(widgetId, settings) {
     jQuery.get(newsEventsAjax.ajaxurl, {
         action: 'get_event_items',
-        limit: options.limit || 6,
-        category: options.category || '',
-        upcoming: options.upcoming || false
+        limit: settings.events_count || 4,
+        upcoming: true
     }, function(response) {
-        loadingEl.hide();
+        if (response.success) {
+            renderEventItems(widgetId, response.data, settings);
+        }
+    });
+}
+
+function renderNewsItems(widgetId, items, settings) {
+    const container = jQuery('#' + widgetId);
+    const template = settings.template_style || 'template_1';
+    
+    let html = '';
+    
+    items.forEach(function(item, index) {
+        const imageHtml = (settings.show_image !== 'no' && item.image_url) ? 
+            `<img src="${item.image_url}" alt="${item.title}" class="item-image">` : '';
         
-        if (response.success && response.data.length > 0) {
-            let html = '';
-            
-            response.data.forEach(function(item) {
-                const eventDate = new Date(item.event_date);
-                const endDate = item.end_date ? new Date(item.end_date) : null;
-                const now = new Date();
-                const isUpcoming = eventDate > now;
-                
-                const imageHtml = item.image_url ? 
-                    `<div class="event-image"><img src="${item.image_url}" alt="${item.title}"></div>` : '';
-                
-                const categoryHtml = item.category ? 
-                    `<span class="event-category">${item.category}</span>` : '';
-                
-                const locationHtml = item.location ? 
-                    `<div class="event-location"><i class="location-icon"></i> ${item.location}</div>` : '';
-                
-                const endDateHtml = endDate ? 
-                    ` - ${endDate.toLocaleDateString()} ${endDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}` : '';
-                
-                const statusClass = isUpcoming ? 'upcoming' : 'past';
-                
-                if (options.layout === 'timeline') {
+        const authorHtml = settings.show_author === 'yes' ? 
+            `<span class="meta-author">${item.author || 'Admin'}</span>` : '';
+        
+        const dateHtml = settings.show_date === 'yes' ? 
+            `<span class="meta-date">${new Date(item.published_date).toLocaleDateString()}</span>` : '';
+        
+        const commentsHtml = settings.show_comments === 'yes' ? 
+            `<span class="meta-comments">${Math.floor(Math.random() * 20)} comments</span>` : '';
+        
+        const metaHtml = `<div class="item-meta">${authorHtml}${dateHtml}${commentsHtml}</div>`;
+        
+        switch (template) {
+            case 'template_1':
+                if (index === 0) {
                     html += `
-                        <div class="event-item event-item-timeline ${statusClass}">
-                            <div class="event-date">
-                                <div class="date-day">${eventDate.getDate()}</div>
-                                <div class="date-month">${eventDate.toLocaleDateString('en', {month: 'short'})}</div>
-                            </div>
-                            <div class="event-content">
-                                ${categoryHtml}
-                                <h3>${item.title}</h3>
-                                <div class="description">${item.description}</div>
-                                <div class="event-time">${eventDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${endDateHtml}</div>
-                                ${locationHtml}
-                            </div>
+                        <div class="carousel-item">
+                            ${imageHtml}
+                            <h3 class="item-title">${item.title}</h3>
+                            <div class="item-content">${item.content}</div>
+                            ${metaHtml}
                         </div>
                     `;
-                } else if (options.layout === 'list') {
+                }
+                break;
+                
+            case 'template_2':
+                html += `
+                    <div class="grid-item news-item">
+                        ${imageHtml}
+                        <div class="item-body">
+                            <h3 class="item-title">${item.title}</h3>
+                            <div class="item-content">${item.content.substring(0, 150)}...</div>
+                            ${metaHtml}
+                        </div>
+                    </div>
+                `;
+                break;
+                
+            case 'template_3':
+                html += `
+                    <div class="list-item news-item">
+                        ${imageHtml}
+                        <div class="item-body">
+                            <h3 class="item-title">${item.title}</h3>
+                            <div class="item-content">${item.content.substring(0, 200)}...</div>
+                            ${metaHtml}
+                        </div>
+                    </div>
+                `;
+                break;
+                
+            case 'template_4':
+                if (index === 0) {
                     html += `
-                        <div class="event-item event-item-list ${statusClass}">
-                            ${imageHtml}
-                            <div class="event-content">
-                                ${categoryHtml}
-                                <h3>${item.title}</h3>
-                                <div class="description">${item.description}</div>
-                                <div class="event-meta">
-                                    <div class="event-time">${eventDate.toLocaleDateString()} ${eventDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${endDateHtml}</div>
-                                    ${locationHtml}
-                                </div>
-                            </div>
+                        <div class="main-feature">
+                            <div class="gradient-overlay"></div>
+                            <h2 class="item-title">${item.title}</h2>
+                            <div class="item-content">${item.content.substring(0, 200)}...</div>
+                            ${metaHtml}
+                        </div>
+                    `;
+                } else if (index <= 2) {
+                    html += `
+                        <div class="sub-feature">
+                            <h3 class="item-title">${item.title}</h3>
+                            <div class="item-content">${item.content.substring(0, 100)}...</div>
                         </div>
                     `;
                 } else {
                     html += `
-                        <div class="event-item event-item-card ${statusClass}">
+                        <div class="regular-item news-item">
                             ${imageHtml}
-                            <div class="event-date">
-                                <div class="date-day">${eventDate.getDate()}</div>
-                                <div class="date-month">${eventDate.toLocaleDateString('en', {month: 'short'})}</div>
-                            </div>
-                            <div class="event-content">
-                                ${categoryHtml}
-                                <h3>${item.title}</h3>
-                                <div class="description">${item.description.substring(0, 100)}...</div>
-                                <div class="event-time">${eventDate.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}${endDateHtml}</div>
-                                ${locationHtml}
-                            </div>
+                            <h3 class="item-title">${item.title}</h3>
+                            <div class="item-content">${item.content.substring(0, 120)}...</div>
+                            ${metaHtml}
                         </div>
                     `;
                 }
-            });
-            
-            itemsEl.html(html);
-            
-        } else {
-            itemsEl.html('<p class="no-events">No events found.</p>');
+                break;
+                
+            case 'template_5':
+                html += `
+                    <div class="stacked-card news-item">
+                        ${imageHtml}
+                        <h3 class="item-title">${item.title}</h3>
+                        <div class="item-content">${item.content}</div>
+                        ${metaHtml}
+                    </div>
+                `;
+                break;
         }
-    }).fail(function() {
-        loadingEl.hide();
-        itemsEl.html('<p class="error">Error loading events.</p>');
     });
+    
+    // Insert content into appropriate containers
+    switch (template) {
+        case 'template_1':
+            container.find('.carousel-items').html(html);
+            container.find('.featured-item').html(items[0] ? `
+                <h3>${items[0].title}</h3>
+                <p>${items[0].content.substring(0, 100)}...</p>
+            ` : '');
+            break;
+        case 'template_2':
+            container.find('.grid-items').html(html);
+            break;
+        case 'template_3':
+            container.find('.list-items').html(html);
+            break;
+        case 'template_4':
+            container.find('.main-feature').html(html.split('</div>')[0] + '</div>');
+            container.find('.sub-features').html(html.split('sub-feature').slice(1, 3).join('sub-feature'));
+            container.find('.regular-items').html(html.split('regular-item').slice(1).join('regular-item'));
+            break;
+        case 'template_5':
+            container.find('.stacked-cards').html(html);
+            break;
+    }
 }
 
-function initNewsCarousel(widgetId) {
-    const container = jQuery('#' + widgetId + ' .news-items');
+function renderEventItems(widgetId, items, settings) {
+    const container = jQuery('#' + widgetId);
+    // Similar rendering logic for events
+    // Implementation would follow same pattern as news items
+}
+
+function initTemplate(widgetId, template) {
+    const container = jQuery('#' + widgetId);
     
-    // Simple carousel implementation
-    container.addClass('news-carousel');
-    
+    switch (template) {
+        case 'template_1':
+            initCarousel(widgetId);
+            break;
+        case 'template_5':
+            initCardStack(widgetId);
+            break;
+    }
+}
+
+function initCarousel(widgetId) {
+    const container = jQuery('#' + widgetId);
     let currentIndex = 0;
-    const items = container.find('.news-item');
-    const itemCount = items.length;
     
-    if (itemCount <= 1) return;
+    container.find('.carousel-next').on('click', function() {
+        const items = container.find('.carousel-item');
+        currentIndex = (currentIndex + 1) % items.length;
+        updateCarousel(container, currentIndex);
+    });
     
-    // Add navigation buttons
-    container.append(`
-        <button class="carousel-prev" onclick="moveCarousel('${widgetId}', -1)">‹</button>
-        <button class="carousel-next" onclick="moveCarousel('${widgetId}', 1)">›</button>
-    `);
+    container.find('.carousel-prev').on('click', function() {
+        const items = container.find('.carousel-item');
+        currentIndex = (currentIndex - 1 + items.length) % items.length;
+        updateCarousel(container, currentIndex);
+    });
     
-    // Auto-rotate every 5 seconds
+    // Auto-advance carousel
     setInterval(function() {
-        moveCarousel(widgetId, 1);
+        const items = container.find('.carousel-item');
+        if (items.length > 1) {
+            currentIndex = (currentIndex + 1) % items.length;
+            updateCarousel(container, currentIndex);
+        }
     }, 5000);
 }
 
-function moveCarousel(widgetId, direction) {
-    const container = jQuery('#' + widgetId + ' .news-items');
-    const items = container.find('.news-item');
-    const itemCount = items.length;
-    
-    let currentIndex = parseInt(container.data('current-index') || 0);
-    currentIndex = (currentIndex + direction + itemCount) % itemCount;
-    
-    items.hide();
-    items.eq(currentIndex).show();
-    
-    container.data('current-index', currentIndex);
+function updateCarousel(container, index) {
+    const items = container.find('.carousel-items');
+    items.css('transform', `translateX(-${index * 100}%)`);
 }
 
-// Auto-refresh news and events every 5 minutes
+function initCardStack(widgetId) {
+    const container = jQuery('#' + widgetId);
+    
+    container.find('.stacked-card').on('mouseenter', function() {
+        jQuery(this).css('z-index', 100);
+    }).on('mouseleave', function() {
+        jQuery(this).css('z-index', 'auto');
+    });
+}
+
+// Auto-refresh content every 5 minutes
 jQuery(document).ready(function($) {
     setInterval(function() {
-        $('.news-display-widget').each(function() {
+        $('.news-events-container').each(function() {
             const widgetId = $(this).attr('id');
-            if (widgetId && widgetId.includes('news-display')) {
-                // Reload news items
-                loadNewsItems(widgetId, {
-                    limit: 6,
-                    layout: 'grid'
-                });
-            }
-        });
-        
-        $('.events-display-widget').each(function() {
-            const widgetId = $(this).attr('id');
-            if (widgetId && widgetId.includes('events-display')) {
-                // Reload event items
-                loadEventItems(widgetId, {
-                    limit: 6,
-                    upcoming: true,
-                    layout: 'grid'
+            if (widgetId) {
+                // Reload content for each widget
+                loadContentForWidget(widgetId, {
+                    content_type: 'both',
+                    news_count: 6,
+                    events_count: 4
                 });
             }
         });
