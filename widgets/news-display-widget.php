@@ -140,6 +140,271 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
         
         $this->end_controls_section();
         
+        // Layout Settings
+        $this->start_controls_section(
+            'layout_section',
+            [
+                'label' => 'Layout & Grid',
+                'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
+            ]
+        );
+        
+        $this->add_control(
+            'columns',
+            [
+                'label' => 'Columns',
+                'type' => \Elementor\Controls_Manager::SELECT,
+                'default' => '3',
+                'options' => [
+                    '1' => '1 Column',
+                    '2' => '2 Columns',
+                    '3' => '3 Columns',
+                    '4' => '4 Columns',
+                    '6' => '6 Columns',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'rows',
+            [
+                'label' => 'Rows per Page',
+                'type' => \Elementor\Controls_Manager::NUMBER,
+                'default' => 2,
+                'min' => 1,
+                'max' => 10,
+            ]
+        );
+        
+        $this->add_control(
+            'sidebar_position',
+            [
+                'label' => 'Sidebar Position',
+                'type' => \Elementor\Controls_Manager::SELECT,
+                'default' => 'right',
+                'options' => [
+                    'none' => 'No Sidebar',
+                    'left' => 'Left Sidebar',
+                    'right' => 'Right Sidebar',
+                ],
+                'condition' => [
+                    'template_style' => ['template_1', 'template_3'],
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'sidebar_width',
+            [
+                'label' => 'Sidebar Width (%)',
+                'type' => \Elementor\Controls_Manager::SLIDER,
+                'range' => [
+                    '%' => [
+                        'min' => 20,
+                        'max' => 50,
+                    ],
+                ],
+                'default' => [
+                    'size' => 30,
+                ],
+                'condition' => [
+                    'sidebar_position!' => 'none',
+                ],
+            ]
+        );
+        
+        $this->end_controls_section();
+        
+        // Image Settings
+        $this->start_controls_section(
+            'image_section',
+            [
+                'label' => 'Image Settings',
+                'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
+            ]
+        );
+        
+        $this->add_control(
+            'image_size',
+            [
+                'label' => 'Image Size',
+                'type' => \Elementor\Controls_Manager::SELECT,
+                'default' => 'medium',
+                'options' => [
+                    'thumbnail' => 'Thumbnail (150x150)',
+                    'medium' => 'Medium (300x300)',
+                    'large' => 'Large (1024x1024)',
+                    'full' => 'Full Size',
+                    'custom' => 'Custom Size',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'custom_image_width',
+            [
+                'label' => 'Custom Width',
+                'type' => \Elementor\Controls_Manager::NUMBER,
+                'default' => 300,
+                'condition' => [
+                    'image_size' => 'custom',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'custom_image_height',
+            [
+                'label' => 'Custom Height',
+                'type' => \Elementor\Controls_Manager::NUMBER,
+                'default' => 200,
+                'condition' => [
+                    'image_size' => 'custom',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'image_position',
+            [
+                'label' => 'Image Position',
+                'type' => \Elementor\Controls_Manager::SELECT,
+                'default' => 'top',
+                'options' => [
+                    'top' => 'Top',
+                    'left' => 'Left',
+                    'right' => 'Right',
+                    'background' => 'Background',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'default_image',
+            [
+                'label' => 'Default Image URL',
+                'type' => \Elementor\Controls_Manager::URL,
+                'placeholder' => 'https://example.com/default-image.jpg',
+                'description' => 'Used when no image is provided',
+            ]
+        );
+        
+        $this->end_controls_section();
+        
+        // Pagination Settings
+        $this->start_controls_section(
+            'pagination_section',
+            [
+                'label' => 'Pagination',
+                'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
+            ]
+        );
+        
+        $this->add_control(
+            'enable_pagination',
+            [
+                'label' => 'Enable Pagination',
+                'type' => \Elementor\Controls_Manager::SWITCHER,
+                'default' => 'yes',
+            ]
+        );
+        
+        $this->add_control(
+            'pagination_type',
+            [
+                'label' => 'Pagination Type',
+                'type' => \Elementor\Controls_Manager::SELECT,
+                'default' => 'numbers',
+                'options' => [
+                    'numbers' => 'Page Numbers',
+                    'prev_next' => 'Previous/Next',
+                    'load_more' => 'Load More Button',
+                    'infinite' => 'Infinite Scroll',
+                ],
+                'condition' => [
+                    'enable_pagination' => 'yes',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'items_per_page',
+            [
+                'label' => 'Items per Page',
+                'type' => \Elementor\Controls_Manager::NUMBER,
+                'default' => 6,
+                'min' => 1,
+                'max' => 50,
+                'condition' => [
+                    'enable_pagination' => 'yes',
+                ],
+            ]
+        );
+        
+        $this->end_controls_section();
+        
+        // Heading/Title Settings
+        $this->start_controls_section(
+            'heading_section',
+            [
+                'label' => 'Heading & Title',
+                'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
+            ]
+        );
+        
+        $this->add_control(
+            'show_main_heading',
+            [
+                'label' => 'Show Main Heading',
+                'type' => \Elementor\Controls_Manager::SWITCHER,
+                'default' => 'yes',
+            ]
+        );
+        
+        $this->add_control(
+            'main_heading_text',
+            [
+                'label' => 'Main Heading Text',
+                'type' => \Elementor\Controls_Manager::TEXT,
+                'default' => 'Latest News & Events',
+                'condition' => [
+                    'show_main_heading' => 'yes',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'heading_tag',
+            [
+                'label' => 'Heading HTML Tag',
+                'type' => \Elementor\Controls_Manager::SELECT,
+                'default' => 'h2',
+                'options' => [
+                    'h1' => 'H1',
+                    'h2' => 'H2',
+                    'h3' => 'H3',
+                    'h4' => 'H4',
+                    'h5' => 'H5',
+                    'h6' => 'H6',
+                ],
+                'condition' => [
+                    'show_main_heading' => 'yes',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'show_section_titles',
+            [
+                'label' => 'Show Section Titles',
+                'type' => \Elementor\Controls_Manager::SWITCHER,
+                'default' => 'yes',
+                'description' => 'Show "News" and "Events" section titles',
+            ]
+        );
+        
+        $this->end_controls_section();
+        
         // Management Section
         $this->start_controls_section(
             'management_section',
@@ -327,6 +592,250 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
         );
         
         $this->end_controls_section();
+        
+        // Image Style Section
+        $this->start_controls_section(
+            'image_style_section',
+            [
+                'label' => 'Image Style',
+                'tab' => \Elementor\Controls_Manager::TAB_STYLE,
+            ]
+        );
+        
+        $this->add_control(
+            'image_border_radius',
+            [
+                'label' => 'Image Border Radius',
+                'type' => \Elementor\Controls_Manager::SLIDER,
+                'range' => [
+                    'px' => [
+                        'min' => 0,
+                        'max' => 50,
+                    ],
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .item-image img' => 'border-radius: {{SIZE}}{{UNIT}};',
+                ],
+            ]
+        );
+        
+        $this->add_group_control(
+            \Elementor\Group_Control_Box_Shadow::get_type(),
+            [
+                'name' => 'image_shadow',
+                'label' => 'Image Shadow',
+                'selector' => '{{WRAPPER}} .item-image img',
+            ]
+        );
+        
+        $this->add_control(
+            'image_hover_effect',
+            [
+                'label' => 'Hover Effect',
+                'type' => \Elementor\Controls_Manager::SELECT,
+                'default' => 'zoom',
+                'options' => [
+                    'none' => 'None',
+                    'zoom' => 'Zoom In',
+                    'zoom_out' => 'Zoom Out',
+                    'fade' => 'Fade',
+                ],
+            ]
+        );
+        
+        $this->end_controls_section();
+        
+        // Pagination Style Section
+        $this->start_controls_section(
+            'pagination_style_section',
+            [
+                'label' => 'Pagination Style',
+                'tab' => \Elementor\Controls_Manager::TAB_STYLE,
+                'condition' => [
+                    'enable_pagination' => 'yes',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'pagination_alignment',
+            [
+                'label' => 'Alignment',
+                'type' => \Elementor\Controls_Manager::CHOOSE,
+                'options' => [
+                    'left' => [
+                        'title' => 'Left',
+                        'icon' => 'eicon-text-align-left',
+                    ],
+                    'center' => [
+                        'title' => 'Center',
+                        'icon' => 'eicon-text-align-center',
+                    ],
+                    'right' => [
+                        'title' => 'Right',
+                        'icon' => 'eicon-text-align-right',
+                    ],
+                ],
+                'default' => 'center',
+                'selectors' => [
+                    '{{WRAPPER}} .pagination-container' => 'text-align: {{VALUE}};',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'pagination_button_color',
+            [
+                'label' => 'Button Color',
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'selectors' => [
+                    '{{WRAPPER}} .pagination-btn' => 'color: {{VALUE}};',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'pagination_button_bg',
+            [
+                'label' => 'Button Background',
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'selectors' => [
+                    '{{WRAPPER}} .pagination-btn' => 'background-color: {{VALUE}};',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'pagination_active_color',
+            [
+                'label' => 'Active Button Color',
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'selectors' => [
+                    '{{WRAPPER}} .pagination-btn.active' => 'background-color: {{VALUE}};',
+                ],
+            ]
+        );
+        
+        $this->end_controls_section();
+        
+        // Heading Style Section
+        $this->start_controls_section(
+            'heading_style_section',
+            [
+                'label' => 'Heading Style',
+                'tab' => \Elementor\Controls_Manager::TAB_STYLE,
+                'condition' => [
+                    'show_main_heading' => 'yes',
+                ],
+            ]
+        );
+        
+        $this->add_group_control(
+            \Elementor\Group_Control_Typography::get_type(),
+            [
+                'name' => 'heading_typography',
+                'label' => 'Heading Typography',
+                'selector' => '{{WRAPPER}} .main-heading',
+            ]
+        );
+        
+        $this->add_control(
+            'heading_color',
+            [
+                'label' => 'Heading Color',
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'selectors' => [
+                    '{{WRAPPER}} .main-heading' => 'color: {{VALUE}};',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'heading_alignment',
+            [
+                'label' => 'Heading Alignment',
+                'type' => \Elementor\Controls_Manager::CHOOSE,
+                'options' => [
+                    'left' => [
+                        'title' => 'Left',
+                        'icon' => 'eicon-text-align-left',
+                    ],
+                    'center' => [
+                        'title' => 'Center',
+                        'icon' => 'eicon-text-align-center',
+                    ],
+                    'right' => [
+                        'title' => 'Right',
+                        'icon' => 'eicon-text-align-right',
+                    ],
+                ],
+                'default' => 'center',
+                'selectors' => [
+                    '{{WRAPPER}} .main-heading' => 'text-align: {{VALUE}};',
+                ],
+            ]
+        );
+        
+        $this->end_controls_section();
+        
+        // Meta Information Style
+        $this->start_controls_section(
+            'meta_style_section',
+            [
+                'label' => 'Meta Info Style',
+                'tab' => \Elementor\Controls_Manager::TAB_STYLE,
+            ]
+        );
+        
+        $this->add_group_control(
+            \Elementor\Group_Control_Typography::get_type(),
+            [
+                'name' => 'meta_typography',
+                'label' => 'Meta Typography',
+                'selector' => '{{WRAPPER}} .item-meta',
+            ]
+        );
+        
+        $this->add_control(
+            'meta_color',
+            [
+                'label' => 'Meta Color',
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'selectors' => [
+                    '{{WRAPPER}} .item-meta' => 'color: {{VALUE}};',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'author_color',
+            [
+                'label' => 'Author Color',
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'selectors' => [
+                    '{{WRAPPER}} .item-author' => 'color: {{VALUE}};',
+                ],
+                'condition' => [
+                    'show_author' => 'yes',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'date_color',
+            [
+                'label' => 'Date Color',
+                'type' => \Elementor\Controls_Manager::COLOR,
+                'selectors' => [
+                    '{{WRAPPER}} .item-date' => 'color: {{VALUE}};',
+                ],
+                'condition' => [
+                    'show_date' => 'yes',
+                ],
+            ]
+        );
+        
+        $this->end_controls_section();
     }
     
     protected function render() {
@@ -336,15 +845,30 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
         ?>
         <div class="news-events-container template-<?php echo esc_attr($settings['template_style']); ?>" id="<?php echo $widget_id; ?>">
             
+            <?php if ($settings['show_main_heading'] === 'yes'): ?>
+                <<?php echo esc_attr($settings['heading_tag']); ?> class="main-heading">
+                    <?php echo esc_html($settings['main_heading_text']); ?>
+                </<?php echo esc_attr($settings['heading_tag']); ?>>
+            <?php endif; ?>
+            
             <?php if ($settings['show_management'] === 'yes' && $this->can_manage_content($settings['allowed_roles'])): ?>
                 <div class="management-panel">
                     <?php $this->render_management_panel($settings); ?>
                 </div>
             <?php endif; ?>
             
-            <div class="content-display">
+            <div class="content-display" 
+                 data-columns="<?php echo esc_attr($settings['columns']); ?>"
+                 data-rows="<?php echo esc_attr($settings['rows']); ?>"
+                 data-sidebar="<?php echo esc_attr($settings['sidebar_position'] ?? 'none'); ?>">
                 <?php $this->render_template($settings, $widget_id); ?>
             </div>
+            
+            <?php if ($settings['enable_pagination'] === 'yes'): ?>
+                <div class="pagination-container" data-type="<?php echo esc_attr($settings['pagination_type']); ?>">
+                    <div class="pagination-wrapper"></div>
+                </div>
+            <?php endif; ?>
         </div>
         
         <script>
@@ -391,44 +915,111 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
     
     private function render_news_form() {
         ?>
-        <form class="news-form">
-            <div class="form-row">
-                <input type="text" name="title" placeholder="News Title" required>
-                <input type="text" name="author" placeholder="Author Name">
+        <div class="form-section">
+            <h3>Add/Edit News</h3>
+            <form class="news-form">
+                <div class="form-row">
+                    <input type="text" name="title" placeholder="News Title" required>
+                    <input type="text" name="author" placeholder="Author Name">
+                </div>
+                <div class="form-row">
+                    <select name="category">
+                        <option value="">Select Category</option>
+                        <option value="breaking">Breaking News</option>
+                        <option value="sports">Sports</option>
+                        <option value="politics">Politics</option>
+                        <option value="entertainment">Entertainment</option>
+                        <option value="technology">Technology</option>
+                        <option value="health">Health</option>
+                        <option value="business">Business</option>
+                    </select>
+                    <input type="datetime-local" name="publish_date">
+                </div>
+                <textarea name="content" placeholder="News Content" rows="4" required></textarea>
+                <div class="image-upload-section">
+                    <label>News Image:</label>
+                    <div class="image-input-group">
+                        <input type="url" name="image_url" placeholder="Image URL">
+                        <button type="button" class="upload-btn">Upload Image</button>
+                        <input type="file" name="image_file" accept="image/*" style="display:none;">
+                    </div>
+                    <div class="image-preview"></div>
+                </div>
+                <div class="form-row">
+                    <input type="url" name="source_url" placeholder="Source URL (optional)">
+                    <select name="status">
+                        <option value="published">Published</option>
+                        <option value="draft">Draft</option>
+                        <option value="featured">Featured</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Add News</button>
+                    <button type="button" class="btn-secondary" onclick="clearForm(this)">Clear</button>
+                </div>
+            </form>
+        </div>
+        <div class="existing-items">
+            <h3>Manage Existing News</h3>
+            <div class="items-list news-list">
+                <div class="loading">Loading news items...</div>
             </div>
-            <textarea name="content" placeholder="News Content" required></textarea>
-            <div class="form-row">
-                <input type="url" name="image_url" placeholder="Image URL">
-                <input type="url" name="source_url" placeholder="Source URL">
-            </div>
-            <div class="form-row">
-                <input type="text" name="category" placeholder="Category">
-                <button type="submit">Add News</button>
-            </div>
-        </form>
-        <div class="existing-items news-list"></div>
+        </div>
         <?php
     }
     
     private function render_events_form() {
         ?>
-        <form class="events-form">
-            <div class="form-row">
-                <input type="text" name="title" placeholder="Event Title" required>
-                <input type="text" name="location" placeholder="Location">
+        <div class="form-section">
+            <h3>Add/Edit Events</h3>
+            <form class="events-form">
+                <div class="form-row">
+                    <input type="text" name="title" placeholder="Event Title" required>
+                    <input type="text" name="location" placeholder="Event Location">
+                </div>
+                <div class="form-row">
+                    <input type="datetime-local" name="event_date" required>
+                    <input type="datetime-local" name="end_date" placeholder="End Date (optional)">
+                </div>
+                <textarea name="description" placeholder="Event Description" rows="4" required></textarea>
+                <div class="image-upload-section">
+                    <label>Event Image:</label>
+                    <div class="image-input-group">
+                        <input type="url" name="image_url" placeholder="Image URL">
+                        <button type="button" class="upload-btn">Upload Image</button>
+                        <input type="file" name="image_file" accept="image/*" style="display:none;">
+                    </div>
+                    <div class="image-preview"></div>
+                </div>
+                <div class="form-row">
+                    <select name="category">
+                        <option value="">Select Category</option>
+                        <option value="conference">Conference</option>
+                        <option value="workshop">Workshop</option>
+                        <option value="webinar">Webinar</option>
+                        <option value="meetup">Meetup</option>
+                        <option value="concert">Concert</option>
+                        <option value="festival">Festival</option>
+                        <option value="sports">Sports Event</option>
+                    </select>
+                    <input type="text" name="organizer" placeholder="Organizer">
+                </div>
+                <div class="form-row">
+                    <input type="url" name="registration_url" placeholder="Registration URL">
+                    <input type="number" name="price" placeholder="Price (optional)" step="0.01">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">Add Event</button>
+                    <button type="button" class="btn-secondary" onclick="clearForm(this)">Clear</button>
+                </div>
+            </form>
+        </div>
+        <div class="existing-items">
+            <h3>Manage Existing Events</h3>
+            <div class="items-list events-list">
+                <div class="loading">Loading events...</div>
             </div>
-            <textarea name="description" placeholder="Event Description" required></textarea>
-            <div class="form-row">
-                <input type="datetime-local" name="event_date" required>
-                <input type="datetime-local" name="end_date">
-            </div>
-            <div class="form-row">
-                <input type="url" name="image_url" placeholder="Image URL">
-                <input type="text" name="category" placeholder="Category">
-            </div>
-            <button type="submit">Add Event</button>
-        </form>
-        <div class="existing-items events-list"></div>
+        </div>
         <?php
     }
     

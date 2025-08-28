@@ -56,11 +56,16 @@ class NewsEventsElementor {
             id mediumint(9) NOT NULL AUTO_INCREMENT,
             title varchar(255) NOT NULL,
             content text NOT NULL,
+            excerpt text,
+            author varchar(100),
             image_url varchar(500),
             source_url varchar(500),
             category varchar(100),
+            status varchar(20) DEFAULT 'published',
+            comments_count int DEFAULT 0,
             published_date datetime DEFAULT CURRENT_TIMESTAMP,
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (id)
         ) $charset_collate;";
         
@@ -71,9 +76,14 @@ class NewsEventsElementor {
             event_date datetime NOT NULL,
             end_date datetime,
             location varchar(255),
+            organizer varchar(100),
             image_url varchar(500),
+            registration_url varchar(500),
+            price decimal(10,2),
             category varchar(100),
+            status varchar(20) DEFAULT 'published',
             created_at datetime DEFAULT CURRENT_TIMESTAMP,
+            updated_at datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             PRIMARY KEY (id)
         ) $charset_collate;";
         
@@ -106,8 +116,8 @@ class NewsEventsElementor {
     }
     
     public function enqueue_scripts() {
-        wp_enqueue_script('news-events-js', NEWS_EVENTS_PLUGIN_URL . 'assets/news-events.js', ['jquery'], '1.0.0', true);
-        wp_enqueue_style('news-events-css', NEWS_EVENTS_PLUGIN_URL . 'assets/news-events.css', [], '1.0.0');
+        wp_enqueue_script('news-events-js', NEWS_EVENTS_PLUGIN_URL . 'assets/news-events-script.js', ['jquery'], '1.0.0', true);
+        wp_enqueue_style('news-events-css', NEWS_EVENTS_PLUGIN_URL . 'assets/news-events-style.css', [], '1.0.0');
         
         wp_localize_script('news-events-js', 'newsEventsAjax', [
             'ajaxurl' => admin_url('admin-ajax.php'),
