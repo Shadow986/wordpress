@@ -2,23 +2,7 @@
 
 A complete news and events management system with **custom Elementor widgets** for easy drag-and-drop functionality. Perfect for news websites, event venues, and community organizations using WordPress and Elementor.
 
-![WordPress Compatible](https://img.shields.io/badge/WordPress-Compatible-blue) ![Elementor Ready](https://img.shields.io/badge/Elementor-Widgets-green) ![Mobile Responsive](https://img.shields.io/badge/Mobile-Responsive-orange) ![Commercial License](https://img.shields.io/badge/License-Commercial-red)
-
-## 🔐 **License Required**
-
-This is a **commercial plugin** that requires a valid license key to function. 
-
-### **Getting a License:**
-1. **Purchase** a license from [your-website.com/purchase](https://your-website.com/purchase)
-2. **Install** the plugin on your WordPress site
-3. **Activate** your license in WordPress Admin → Settings → News & Events License
-4. **Start using** all 4 Elementor widgets
-
-### **License Features:**
-- ✅ **1 Year Updates** - Get all new features and bug fixes
-- ✅ **Multi-site Support** - Use on multiple domains (based on plan)
-- ✅ **Priority Support** - Direct email support
-- ✅ **Commercial Use** - Use on client websites
+![WordPress Compatible](https://img.shields.io/badge/WordPress-Compatible-blue) ![Elementor Ready](https://img.shields.io/badge/Elementor-Widgets-green) ![Mobile Responsive](https://img.shields.io/badge/Mobile-Responsive-orange)
 
 ## 🚀 **What This Plugin Does**
 
