@@ -4,7 +4,7 @@
  * Plugin URI: https://github.com/Shadow986/wordpress
  * Description: Custom Elementor widgets for radio schedule management. Add shows, manage content, and display schedules directly in Elementor.
  * Version: 1.0.0
- * Author: Your Radio Station
+ * Author: Ascend Creative Archie
  * License: GPL v2 or later
  * Text Domain: radio-schedule-elementor
  * Elementor tested up to: 3.18.0
