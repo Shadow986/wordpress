@@ -24,6 +24,212 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
     
     protected function register_controls() {
         
+        // Direct Content Input
+        $this->start_controls_section(
+            'direct_content_section',
+            [
+                'label' => 'Your Content',
+                'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
+            ]
+        );
+        
+        $this->add_control(
+            'content_items',
+            [
+                'label' => 'Add News/Events',
+                'type' => \Elementor\Controls_Manager::REPEATER,
+                'fields' => [
+                    [
+                        'name' => 'item_type',
+                        'label' => 'Type',
+                        'type' => \Elementor\Controls_Manager::SELECT,
+                        'default' => 'news',
+                        'options' => [
+                            'news' => 'News',
+                            'event' => 'Event',
+                        ],
+                    ],
+                    [
+                        'name' => 'title',
+                        'label' => 'Title',
+                        'type' => \Elementor\Controls_Manager::TEXT,
+                        'default' => 'Enter title here',
+                    ],
+                    [
+                        'name' => 'content',
+                        'label' => 'Content',
+                        'type' => \Elementor\Controls_Manager::TEXTAREA,
+                        'default' => 'Enter your content here...',
+                        'rows' => 4,
+                    ],
+                    [
+                        'name' => 'image',
+                        'label' => 'Image',
+                        'type' => \Elementor\Controls_Manager::MEDIA,
+                    ],
+                    [
+                        'name' => 'author',
+                        'label' => 'Author',
+                        'type' => \Elementor\Controls_Manager::TEXT,
+                        'default' => 'Author Name',
+                    ],
+                    [
+                        'name' => 'date',
+                        'label' => 'Date',
+                        'type' => \Elementor\Controls_Manager::DATE_TIME,
+                    ],
+                    [
+                        'name' => 'schedule_days',
+                        'label' => 'Show on Days',
+                        'type' => \Elementor\Controls_Manager::SELECT2,
+                        'multiple' => true,
+                        'options' => [
+                            'monday' => 'Monday',
+                            'tuesday' => 'Tuesday',
+                            'wednesday' => 'Wednesday',
+                            'thursday' => 'Thursday',
+                            'friday' => 'Friday',
+                            'saturday' => 'Saturday',
+                            'sunday' => 'Sunday',
+                        ],
+                        'default' => ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
+                    ],
+                    [
+                        'name' => 'schedule_time_start',
+                        'label' => 'Show From Time',
+                        'type' => \Elementor\Controls_Manager::TEXT,
+                        'placeholder' => '09:00',
+                        'description' => 'Format: HH:MM (24-hour)',
+                    ],
+                    [
+                        'name' => 'schedule_time_end',
+                        'label' => 'Show Until Time',
+                        'type' => \Elementor\Controls_Manager::TEXT,
+                        'placeholder' => '17:00',
+                        'description' => 'Format: HH:MM (24-hour)',
+                    ],
+                    [
+                        'name' => 'category',
+                        'label' => 'Category',
+                        'type' => \Elementor\Controls_Manager::TEXT,
+                        'default' => 'General',
+                    ],
+                ],
+                'default' => [
+                    [
+                        'title' => 'Sample News Item',
+                        'content' => 'This is sample content. Edit this in the widget settings.',
+                        'author' => 'Assend Creative',
+                        'category' => 'News',
+                    ],
+                ],
+                'title_field' => '{{{ title }}}',
+            ]
+        );
+        
+        $this->end_controls_section();
+        
+        // Sidebar Content
+        $this->start_controls_section(
+            'sidebar_content_section',
+            [
+                'label' => 'Trending Stories (Sidebar)',
+                'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
+            ]
+        );
+        
+        $this->add_control(
+            'show_sidebar',
+            [
+                'label' => 'Show Sidebar',
+                'type' => \Elementor\Controls_Manager::SWITCHER,
+                'default' => 'yes',
+            ]
+        );
+        
+        $this->add_control(
+            'sidebar_title',
+            [
+                'label' => 'Sidebar Title',
+                'type' => \Elementor\Controls_Manager::TEXT,
+                'default' => 'Trending Stories',
+                'condition' => [
+                    'show_sidebar' => 'yes',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'sidebar_items',
+            [
+                'label' => 'Sidebar Content',
+                'type' => \Elementor\Controls_Manager::REPEATER,
+                'fields' => [
+                    [
+                        'name' => 'title',
+                        'label' => 'Title',
+                        'type' => \Elementor\Controls_Manager::TEXT,
+                        'default' => 'Trending Story',
+                    ],
+                    [
+                        'name' => 'content',
+                        'label' => 'Content',
+                        'type' => \Elementor\Controls_Manager::TEXTAREA,
+                        'default' => 'Trending story content...',
+                        'rows' => 3,
+                    ],
+                    [
+                        'name' => 'image',
+                        'label' => 'Image',
+                        'type' => \Elementor\Controls_Manager::MEDIA,
+                    ],
+                ],
+                'default' => [
+                    [
+                        'title' => 'Sample Trending Story',
+                        'content' => 'This is a sample trending story that appears in the sidebar.',
+                    ],
+                ],
+                'title_field' => '{{{ title }}}',
+                'condition' => [
+                    'show_sidebar' => 'yes',
+                ],
+            ]
+        );
+        
+        $this->end_controls_section();
+        
+        // Schedule Settings
+        $this->start_controls_section(
+            'schedule_section',
+            [
+                'label' => 'Schedule Settings',
+                'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
+            ]
+        );
+        
+        $this->add_control(
+            'show_day_filter',
+            [
+                'label' => 'Show Day Filter',
+                'type' => \Elementor\Controls_Manager::SWITCHER,
+                'default' => 'yes',
+                'description' => 'Show day buttons (Mon, Tue, Wed, etc.)',
+            ]
+        );
+        
+        $this->add_control(
+            'current_day_only',
+            [
+                'label' => 'Show Current Day Only',
+                'type' => \Elementor\Controls_Manager::SWITCHER,
+                'default' => 'no',
+                'description' => 'Only show content scheduled for today',
+            ]
+        );
+        
+        $this->end_controls_section();
+        
         // Template Selection
         $this->start_controls_section(
             'template_section',
@@ -968,84 +1174,169 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
                 </<?php echo esc_attr($settings['heading_tag']); ?>>
             <?php endif; ?>
             
-            <!-- Quick Add Content Form -->
-            <?php if (is_user_logged_in() && current_user_can('edit_posts')): ?>
-                <div class="quick-add-panel">
-                    <h3>Add New Content</h3>
-                    <form class="quick-add-form" data-widget-id="<?php echo $widget_id; ?>">
-                        <div class="form-row">
-                            <select name="content_type" required>
-                                <option value="news">News Item</option>
-                                <option value="event">Event</option>
-                            </select>
-                            <input type="text" name="title" placeholder="Title" required>
-                        </div>
-                        <textarea name="content" placeholder="Content/Description" rows="3" required></textarea>
-                        <div class="form-row">
-                            <input type="text" name="author" placeholder="Author">
-                            <input type="url" name="image_url" placeholder="Image URL">
-                        </div>
-                        <div class="form-row event-fields" style="display:none;">
-                            <input type="datetime-local" name="event_date">
-                            <input type="text" name="location" placeholder="Location">
-                        </div>
-                        <div class="form-row">
-                            <select name="category">
-                                <option value="">Select Category</option>
-                                <option value="breaking">Breaking News</option>
-                                <option value="sports">Sports</option>
-                                <option value="technology">Technology</option>
-                                <option value="business">Business</option>
-                                <option value="conference">Conference</option>
-                                <option value="workshop">Workshop</option>
-                            </select>
-                            <button type="submit" class="add-btn">Add Content</button>
-                        </div>
-                    </form>
+            <?php if ($settings['show_day_filter'] === 'yes'): ?>
+                <div class="day-filter">
+                    <button class="day-btn active" data-day="all">All</button>
+                    <button class="day-btn" data-day="monday">Mon</button>
+                    <button class="day-btn" data-day="tuesday">Tue</button>
+                    <button class="day-btn" data-day="wednesday">Wed</button>
+                    <button class="day-btn" data-day="thursday">Thu</button>
+                    <button class="day-btn" data-day="friday">Fri</button>
+                    <button class="day-btn" data-day="saturday">Sat</button>
+                    <button class="day-btn" data-day="sunday">Sun</button>
                 </div>
             <?php endif; ?>
             
-            <?php if ($settings['show_management'] === 'yes' && $this->can_manage_content($settings['allowed_roles'])): ?>
-                <div class="management-panel">
-                    <?php $this->render_management_panel($settings); ?>
+            <div class="content-layout <?php echo $settings['show_sidebar'] === 'yes' ? 'with-sidebar' : 'no-sidebar'; ?>">
+                <div class="main-content">
+                    <?php $this->render_content_items($settings); ?>
                 </div>
-            <?php endif; ?>
-            
-            <div class="content-display" 
-                 data-columns="<?php echo esc_attr($settings['columns']); ?>"
-                 data-rows="<?php echo esc_attr($settings['rows']); ?>"
-                 data-sidebar="<?php echo esc_attr($settings['sidebar_position'] ?? 'none'); ?>">
-                <?php $this->render_template($settings, $widget_id); ?>
+                
+                <?php if ($settings['show_sidebar'] === 'yes'): ?>
+                    <div class="sidebar-content">
+                        <h3 class="sidebar-title"><?php echo esc_html($settings['sidebar_title']); ?></h3>
+                        <?php $this->render_sidebar_items($settings); ?>
+                    </div>
+                <?php endif; ?>
             </div>
-            
-            <?php if ($settings['enable_pagination'] === 'yes'): ?>
-                <div class="pagination-container" data-type="<?php echo esc_attr($settings['pagination_type']); ?>">
-                    <div class="pagination-wrapper"></div>
-                </div>
-            <?php endif; ?>
         </div>
         
         <script>
         jQuery(document).ready(function($) {
-            loadContentForWidget('<?php echo $widget_id; ?>', <?php echo json_encode($settings); ?>);
+            // Day filter functionality
+            $('.day-btn').click(function() {
+                $('.day-btn').removeClass('active');
+                $(this).addClass('active');
+                
+                const selectedDay = $(this).data('day');
+                filterByDay(selectedDay);
+            });
             
-            // Show/hide event fields
-            $('select[name="content_type"]').change(function() {
-                if ($(this).val() === 'event') {
-                    $('.event-fields').show();
+            // Initial filter based on current day if enabled
+            <?php if ($settings['current_day_only'] === 'yes'): ?>
+                const today = new Date().toLocaleLowerCase().substring(0, 3);
+                filterByDay(today + 'day');
+            <?php endif; ?>
+        });
+        
+        function filterByDay(day) {
+            $('.news-item, .event-item').each(function() {
+                const itemDays = $(this).data('days');
+                if (day === 'all' || !itemDays || itemDays.includes(day)) {
+                    $(this).show();
                 } else {
-                    $('.event-fields').hide();
+                    $(this).hide();
                 }
             });
-            
-            // Quick add form submission
-            $('.quick-add-form').submit(function(e) {
-                e.preventDefault();
-                submitQuickAdd($(this));
-            });
-        });
+        }
         </script>
         <?php
+    }
+    
+    private function render_content_items($settings) {
+        if (empty($settings['content_items'])) {
+            echo '<div class="no-content">No content added yet. Add content in the widget settings.</div>';
+            return;
+        }
+        
+        $columns = $settings['show_sidebar'] === 'yes' ? 2 : ($settings['columns'] ?? 3);
+        
+        echo '<div class="template-grid" data-columns="' . esc_attr($columns) . '">';
+        echo '<div class="grid-items">';
+        
+        foreach ($settings['content_items'] as $item) {
+            if ($this->should_show_item($item)) {
+                $this->render_single_item($item, $settings);
+            }
+        }
+        
+        echo '</div></div>';
+    }
+    
+    private function should_show_item($item) {
+        // Check time schedule
+        if (!empty($item['schedule_time_start']) && !empty($item['schedule_time_end'])) {
+            $current_time = current_time('H:i');
+            if ($current_time < $item['schedule_time_start'] || $current_time > $item['schedule_time_end']) {
+                return false;
+            }
+        }
+        
+        // Check day schedule
+        if (!empty($item['schedule_days'])) {
+            $current_day = strtolower(current_time('l'));
+            if (!in_array($current_day, $item['schedule_days'])) {
+                return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    private function render_single_item($item, $settings) {
+        $item_class = $item['item_type'] === 'event' ? 'event-item' : 'news-item';
+        $schedule_days = !empty($item['schedule_days']) ? implode(',', $item['schedule_days']) : '';
+        
+        ?>
+        <div class="<?php echo esc_attr($item_class); ?>" data-days="<?php echo esc_attr($schedule_days); ?>">
+            
+            <?php if ($settings['show_image'] !== 'no' && !empty($item['image']['url'])): ?>
+                <div class="item-image">
+                    <img src="<?php echo esc_url($item['image']['url']); ?>" alt="<?php echo esc_attr($item['title']); ?>">
+                </div>
+            <?php endif; ?>
+            
+            <div class="item-content">
+                <h3 class="item-title"><?php echo esc_html($item['title']); ?></h3>
+                
+                <?php if ($settings['show_author'] === 'yes' || $settings['show_date'] === 'yes'): ?>
+                    <div class="item-meta">
+                        <?php if ($settings['show_author'] === 'yes' && !empty($item['author'])): ?>
+                            <span class="item-author">👤 <?php echo esc_html($item['author']); ?></span>
+                        <?php endif; ?>
+                        
+                        <?php if ($settings['show_date'] === 'yes' && !empty($item['date'])): ?>
+                            <span class="item-date">📅 <?php echo date('M j, Y', strtotime($item['date'])); ?></span>
+                        <?php endif; ?>
+                    </div>
+                <?php endif; ?>
+                
+                <div class="item-excerpt"><?php echo wp_kses_post($item['content']); ?></div>
+                
+                <?php if (!empty($item['category'])): ?>
+                    <span class="item-category"><?php echo esc_html($item['category']); ?></span>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php
+    }
+    
+    private function render_sidebar_items($settings) {
+        if (empty($settings['sidebar_items'])) {
+            echo '<div class="no-sidebar-content">No trending stories added yet.</div>';
+            return;
+        }
+        
+        echo '<div class="sidebar-items">';
+        
+        foreach ($settings['sidebar_items'] as $item) {
+            ?>
+            <div class="sidebar-item">
+                <?php if (!empty($item['image']['url'])): ?>
+                    <div class="sidebar-image">
+                        <img src="<?php echo esc_url($item['image']['url']); ?>" alt="<?php echo esc_attr($item['title']); ?>">
+                    </div>
+                <?php endif; ?>
+                
+                <div class="sidebar-content">
+                    <h4 class="sidebar-item-title"><?php echo esc_html($item['title']); ?></h4>
+                    <div class="sidebar-item-content"><?php echo wp_kses_post($item['content']); ?></div>
+                </div>
+            </div>
+            <?php
+        }
+        
+        echo '</div>';
     }
     
     private function can_manage_content($allowed_roles) {
