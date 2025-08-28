@@ -66,6 +66,15 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
                         'name' => 'image',
                         'label' => 'Image',
                         'type' => \Elementor\Controls_Manager::MEDIA,
+                        'default' => [
+                            'url' => '',
+                        ],
+                    ],
+                    [
+                        'name' => 'show_read_more',
+                        'label' => 'Show Read More Button',
+                        'type' => \Elementor\Controls_Manager::SWITCHER,
+                        'default' => 'yes',
                     ],
                     [
                         'name' => 'author',
@@ -133,7 +142,7 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
         $this->start_controls_section(
             'sidebar_content_section',
             [
-                'label' => 'Trending Stories (Sidebar)',
+                'label' => 'Trending Stories (Right Side)',
                 'tab' => \Elementor\Controls_Manager::TAB_CONTENT,
             ]
         );
@@ -141,7 +150,7 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
         $this->add_control(
             'show_sidebar',
             [
-                'label' => 'Show Sidebar',
+                'label' => 'Show Trending Stories',
                 'type' => \Elementor\Controls_Manager::SWITCHER,
                 'default' => 'yes',
             ]
@@ -150,7 +159,7 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
         $this->add_control(
             'sidebar_title',
             [
-                'label' => 'Sidebar Title',
+                'label' => 'Trending Title',
                 'type' => \Elementor\Controls_Manager::TEXT,
                 'default' => 'Trending Stories',
                 'condition' => [
@@ -162,7 +171,7 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
         $this->add_control(
             'sidebar_items',
             [
-                'label' => 'Sidebar Content',
+                'label' => 'Trending Items',
                 'type' => \Elementor\Controls_Manager::REPEATER,
                 'fields' => [
                     [
@@ -182,12 +191,15 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
                         'name' => 'image',
                         'label' => 'Image',
                         'type' => \Elementor\Controls_Manager::MEDIA,
+                        'default' => [
+                            'url' => '',
+                        ],
                     ],
                 ],
                 'default' => [
                     [
                         'title' => 'Sample Trending Story',
-                        'content' => 'This is a sample trending story that appears in the sidebar.',
+                        'content' => 'This is a sample trending story.',
                     ],
                 ],
                 'title_field' => '{{{ title }}}',
@@ -447,11 +459,19 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
         );
         
         $this->add_control(
-            'custom_image_width',
+            'image_width',
             [
-                'label' => 'Custom Width',
-                'type' => \Elementor\Controls_Manager::NUMBER,
-                'default' => 300,
+                'label' => 'Image Width',
+                'type' => \Elementor\Controls_Manager::SLIDER,
+                'range' => [
+                    'px' => [
+                        'min' => 50,
+                        'max' => 800,
+                    ],
+                ],
+                'default' => [
+                    'size' => 300,
+                ],
                 'condition' => [
                     'image_size' => 'custom',
                 ],
@@ -459,13 +479,44 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
         );
         
         $this->add_control(
-            'custom_image_height',
+            'image_height',
             [
-                'label' => 'Custom Height',
-                'type' => \Elementor\Controls_Manager::NUMBER,
-                'default' => 200,
+                'label' => 'Image Height',
+                'type' => \Elementor\Controls_Manager::SLIDER,
+                'range' => [
+                    'px' => [
+                        'min' => 50,
+                        'max' => 600,
+                    ],
+                ],
+                'default' => [
+                    'size' => 200,
+                ],
                 'condition' => [
                     'image_size' => 'custom',
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .item-image img' => 'height: {{SIZE}}{{UNIT}}; object-fit: cover;',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'sidebar_image_height',
+            [
+                'label' => 'Sidebar Image Height',
+                'type' => \Elementor\Controls_Manager::SLIDER,
+                'range' => [
+                    'px' => [
+                        'min' => 50,
+                        'max' => 300,
+                    ],
+                ],
+                'default' => [
+                    'size' => 80,
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .sidebar-image img' => 'height: {{SIZE}}{{UNIT}}; object-fit: cover;',
                 ],
             ]
         );
@@ -1244,9 +1295,9 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
         echo '<div class="template-grid" data-columns="' . esc_attr($columns) . '">';
         echo '<div class="grid-items">';
         
-        foreach ($settings['content_items'] as $item) {
+        foreach ($settings['content_items'] as $index => $item) {
             if ($this->should_show_item($item)) {
-                $this->render_single_item($item, $settings);
+                $this->render_single_item($item, $settings, $index);
             }
         }
         
@@ -1273,14 +1324,14 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
         return true;
     }
     
-    private function render_single_item($item, $settings) {
+    private function render_single_item($item, $settings, $index) {
         $item_class = $item['item_type'] === 'event' ? 'event-item' : 'news-item';
         $schedule_days = !empty($item['schedule_days']) ? implode(',', $item['schedule_days']) : '';
         
         ?>
         <div class="<?php echo esc_attr($item_class); ?>" data-days="<?php echo esc_attr($schedule_days); ?>">
             
-            <?php if ($settings['show_image'] !== 'no' && !empty($item['image']['url'])): ?>
+            <?php if ($settings['show_image'] !== 'no' && isset($item['image']['url']) && !empty($item['image']['url'])): ?>
                 <div class="item-image">
                     <img src="<?php echo esc_url($item['image']['url']); ?>" alt="<?php echo esc_attr($item['title']); ?>">
                 </div>
@@ -1301,10 +1352,16 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
                     </div>
                 <?php endif; ?>
                 
-                <div class="item-excerpt"><?php echo wp_kses_post($item['content']); ?></div>
+                <div class="item-excerpt"><?php echo wp_kses_post(wp_trim_words($item['content'], 20)); ?></div>
                 
                 <?php if (!empty($item['category'])): ?>
                     <span class="item-category"><?php echo esc_html($item['category']); ?></span>
+                <?php endif; ?>
+                
+                <?php if ($item['show_read_more'] === 'yes'): ?>
+                    <a href="#" class="read-more-btn" data-item-index="<?php echo $index; ?>" data-widget-id="<?php echo $this->get_id(); ?>">
+                        Read More
+                    </a>
                 <?php endif; ?>
             </div>
         </div>
@@ -1322,15 +1379,15 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
         foreach ($settings['sidebar_items'] as $item) {
             ?>
             <div class="sidebar-item">
-                <?php if (!empty($item['image']['url'])): ?>
+                <?php if (isset($item['image']['url']) && !empty($item['image']['url'])): ?>
                     <div class="sidebar-image">
                         <img src="<?php echo esc_url($item['image']['url']); ?>" alt="<?php echo esc_attr($item['title']); ?>">
                     </div>
                 <?php endif; ?>
                 
-                <div class="sidebar-content">
+                <div class="sidebar-item-content">
                     <h4 class="sidebar-item-title"><?php echo esc_html($item['title']); ?></h4>
-                    <div class="sidebar-item-content"><?php echo wp_kses_post($item['content']); ?></div>
+                    <div class="sidebar-item-text"><?php echo wp_kses_post($item['content']); ?></div>
                 </div>
             </div>
             <?php

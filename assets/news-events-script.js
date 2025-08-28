@@ -105,6 +105,41 @@ jQuery(document).ready(function($) {
             deleteItem(itemId, type);
         }
     });
+    
+    // Read More button functionality
+    $(document).on('click', '.read-more-btn', function(e) {
+        e.preventDefault();
+        
+        const itemIndex = $(this).data('item-index');
+        const widgetId = $(this).data('widget-id');
+        const button = $(this);
+        
+        button.text('Creating Page...').prop('disabled', true);
+        
+        $.ajax({
+            url: newsEventsAjax.ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'create_read_more_page',
+                item_index: itemIndex,
+                widget_id: widgetId,
+                nonce: newsEventsAjax.nonce
+            },
+            success: function(response) {
+                if (response.success) {
+                    window.open(response.data.page_url, '_blank');
+                    button.text('Read More').prop('disabled', false);
+                } else {
+                    alert('Error creating page: ' + response.data);
+                    button.text('Read More').prop('disabled', false);
+                }
+            },
+            error: function() {
+                alert('Failed to create page. Please try again.');
+                button.text('Read More').prop('disabled', false);
+            }
+        });
+    });
 });
 
 // Initialize widget functionality

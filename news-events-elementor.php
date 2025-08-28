@@ -36,6 +36,7 @@ class NewsEventsElementor {
         add_action('wp_ajax_quick_add_content', [$this, 'quick_add_content']);
         add_action('wp_ajax_load_news_events_content', [$this, 'load_content']);
         add_action('wp_ajax_nopriv_load_news_events_content', [$this, 'load_content']);
+        add_action('wp_ajax_create_read_more_page', [$this, 'create_read_more_page']);
         add_action('wp_ajax_delete_news_item', [$this, 'delete_news_item']);
         add_action('wp_ajax_delete_event_item', [$this, 'delete_event_item']);
         add_action('wp_ajax_get_news_items', [$this, 'get_news_items']);
@@ -273,6 +274,70 @@ class NewsEventsElementor {
                 'total_pages' => 1
             ]
         ]);
+    }
+    
+    public function create_read_more_page() {
+        check_ajax_referer('news_events_nonce', 'nonce');
+        
+        if (!current_user_can('edit_pages')) {
+            wp_die('Unauthorized');
+        }
+        
+        $item_index = intval($_POST['item_index']);
+        $widget_id = sanitize_text_field($_POST['widget_id']);
+        
+        // Get widget settings to find the item
+        $widget_data = get_option('elementor_' . get_the_ID(), []);
+        // This is a simplified approach - in reality you'd need to parse Elementor data
+        
+        // Create a new page
+        $page_data = [
+            'post_title' => 'Article Details - ' . current_time('Y-m-d H:i:s'),
+            'post_content' => $this->get_article_template(),
+            'post_status' => 'draft',
+            'post_type' => 'page',
+            'post_author' => get_current_user_id(),
+        ];
+        
+        $page_id = wp_insert_post($page_data);
+        
+        if ($page_id) {
+            $edit_url = admin_url('post.php?post=' . $page_id . '&action=elementor');
+            wp_send_json_success([
+                'page_id' => $page_id,
+                'page_url' => $edit_url,
+                'message' => 'Page created successfully'
+            ]);
+        } else {
+            wp_send_json_error('Failed to create page');
+        }
+    }
+    
+    private function get_article_template() {
+        return '
+        <!-- wp:heading -->
+        <h2>Article Title</h2>
+        <!-- /wp:heading -->
+        
+        <!-- wp:image -->
+        <figure class="wp-block-image"><img alt="Article Image"/></figure>
+        <!-- /wp:image -->
+        
+        <!-- wp:paragraph -->
+        <p><strong>Author:</strong> Author Name | <strong>Date:</strong> ' . current_time('F j, Y') . '</p>
+        <!-- /wp:paragraph -->
+        
+        <!-- wp:paragraph -->
+        <p>Write your full article content here. This page was automatically created by the News & Events widget.</p>
+        <!-- /wp:paragraph -->
+        
+        <!-- wp:paragraph -->
+        <p>Add more paragraphs, images, and content as needed.</p>
+        <!-- /wp:paragraph -->
+        
+        <!-- wp:paragraph -->
+        <p><em>Created by Assend Creative - Archie News & Events Widget</em></p>
+        <!-- /wp:paragraph -->';
     }
     
     public function get_news_items() {
