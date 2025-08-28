@@ -279,6 +279,49 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
         );
         
         $this->add_control(
+            'content_source',
+            [
+                'label' => 'Content Source',
+                'type' => \Elementor\Controls_Manager::SELECT,
+                'default' => 'manual',
+                'options' => [
+                    'manual' => 'Manual Content (Add Below)',
+                    'external' => 'External Link/Feed',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'external_link',
+            [
+                'label' => 'External News/Content Link',
+                'type' => \Elementor\Controls_Manager::URL,
+                'placeholder' => 'https://example.com/news-feed',
+                'description' => 'Enter the URL to pull news content from (RSS feed, API endpoint, or webpage)',
+                'condition' => [
+                    'content_source' => 'external',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'external_format',
+            [
+                'label' => 'External Content Format',
+                'type' => \Elementor\Controls_Manager::SELECT,
+                'default' => 'rss',
+                'options' => [
+                    'rss' => 'RSS Feed',
+                    'json' => 'JSON API',
+                    'html' => 'HTML Scraping',
+                ],
+                'condition' => [
+                    'content_source' => 'external',
+                ],
+            ]
+        );
+        
+        $this->add_control(
             'content_type',
             [
                 'label' => 'Content Type',
@@ -288,6 +331,9 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
                     'news' => 'News Only',
                     'events' => 'Events Only',
                     'both' => 'News & Events',
+                ],
+                'condition' => [
+                    'content_source' => 'manual',
                 ],
             ]
         );
@@ -594,6 +640,33 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
                 'max' => 50,
                 'condition' => [
                     'enable_pagination' => 'yes',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'enable_auto_scroll',
+            [
+                'label' => 'Enable Auto Scroll',
+                'type' => \Elementor\Controls_Manager::SWITCHER,
+                'default' => 'no',
+                'condition' => [
+                    'enable_pagination' => 'yes',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'auto_scroll_interval',
+            [
+                'label' => 'Auto Scroll Interval (seconds)',
+                'type' => \Elementor\Controls_Manager::NUMBER,
+                'default' => 5,
+                'min' => 2,
+                'max' => 30,
+                'condition' => [
+                    'enable_pagination' => 'yes',
+                    'enable_auto_scroll' => 'yes',
                 ],
             ]
         );
@@ -1298,8 +1371,18 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
         $settings = $this->get_settings_for_display();
         $widget_id = 'news-events-' . $this->get_id();
         
+        // Prepare settings for JavaScript
+        $js_settings = [
+            'enable_pagination' => $settings['enable_pagination'] ?? 'no',
+            'items_per_page' => $settings['items_per_page'] ?? 6,
+            'enable_auto_scroll' => $settings['enable_auto_scroll'] ?? 'no',
+            'auto_scroll_interval' => $settings['auto_scroll_interval'] ?? 5,
+        ];
+        
         ?>
-        <div class="news-events-container template-<?php echo esc_attr($settings['template_style']); ?>" id="<?php echo $widget_id; ?>">
+        <div class="news-events-container template-<?php echo esc_attr($settings['template_style']); ?>" 
+             id="<?php echo $widget_id; ?>"
+             data-settings="<?php echo esc_attr(json_encode($js_settings)); ?>">
             
             <?php if ($settings['show_main_heading'] === 'yes'): ?>
                 <<?php echo esc_attr($settings['heading_tag']); ?> class="main-heading">
@@ -1367,23 +1450,229 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
     }
     
     private function render_content_items($settings) {
+        // Check content source
+        if ($settings['content_source'] === 'external' && !empty($settings['external_link']['url'])) {
+            $this->render_external_content($settings);
+            return;
+        }
+        
+        // Manual content
         if (empty($settings['content_items'])) {
             echo '<div class="no-content">No content added yet. Add content in the widget settings.</div>';
             return;
         }
         
-        $columns = $settings['show_sidebar'] === 'yes' ? 2 : ($settings['columns'] ?? 3);
-        
-        echo '<div class="template-grid" data-columns="' . esc_attr($columns) . '">';
-        echo '<div class="grid-items">';
-        
-        foreach ($settings['content_items'] as $index => $item) {
+        // Filter items that should be shown
+        $visible_items = [];
+        foreach ($settings['content_items'] as $item) {
             if ($this->should_show_item($item)) {
-                $this->render_single_item($item, $settings, $index);
+                $visible_items[] = $item;
             }
         }
         
-        echo '</div></div>';
+        $columns = $settings['show_sidebar'] === 'yes' ? 2 : ($settings['columns'] ?? 3);
+        $items_per_page = $settings['enable_pagination'] === 'yes' ? (int)$settings['items_per_page'] : count($visible_items);
+        $current_page = 1;
+        
+        // Get current page from URL or AJAX
+        if (isset($_GET['page'])) {
+            $current_page = max(1, (int)$_GET['page']);
+        }
+        
+        $total_items = count($visible_items);
+        $total_pages = ceil($total_items / $items_per_page);
+        $offset = ($current_page - 1) * $items_per_page;
+        $items_to_show = array_slice($visible_items, $offset, $items_per_page);
+        
+        echo '<div class="template-grid" data-columns="' . esc_attr($columns) . '" data-current-page="' . $current_page . '" data-total-pages="' . $total_pages . '">';
+        echo '<div class="grid-items">';
+        
+        foreach ($items_to_show as $index => $item) {
+            $this->render_single_item($item, $settings, $offset + $index);
+        }
+        
+        echo '</div>';
+        
+        // Render pagination if enabled
+        if ($settings['enable_pagination'] === 'yes' && $total_pages > 1) {
+            $this->render_pagination($current_page, $total_pages, $settings);
+        }
+        
+        echo '</div>';
+    }
+    
+    private function render_external_content($settings) {
+        $external_url = $settings['external_link']['url'];
+        $format = $settings['external_format'] ?? 'rss';
+        $items_per_page = $settings['enable_pagination'] === 'yes' ? (int)$settings['items_per_page'] : 10;
+        
+        // Fetch external content
+        $external_items = $this->fetch_external_content($external_url, $format);
+        
+        if (empty($external_items)) {
+            echo '<div class="no-content">Unable to load external content. Please check the URL.</div>';
+            return;
+        }
+        
+        $columns = $settings['show_sidebar'] === 'yes' ? 2 : ($settings['columns'] ?? 3);
+        $current_page = 1;
+        
+        if (isset($_GET['page'])) {
+            $current_page = max(1, (int)$_GET['page']);
+        }
+        
+        $total_items = count($external_items);
+        $total_pages = ceil($total_items / $items_per_page);
+        $offset = ($current_page - 1) * $items_per_page;
+        $items_to_show = array_slice($external_items, $offset, $items_per_page);
+        
+        echo '<div class="template-grid" data-columns="' . esc_attr($columns) . '" data-current-page="' . $current_page . '" data-total-pages="' . $total_pages . '">';
+        echo '<div class="grid-items">';
+        
+        foreach ($items_to_show as $index => $item) {
+            $this->render_external_item($item, $settings, $offset + $index);
+        }
+        
+        echo '</div>';
+        
+        // Render pagination if enabled
+        if ($settings['enable_pagination'] === 'yes' && $total_pages > 1) {
+            $this->render_pagination($current_page, $total_pages, $settings);
+        }
+        
+        echo '</div>';
+    }
+    
+    private function fetch_external_content($url, $format) {
+        // Cache key for external content
+        $cache_key = 'news_external_' . md5($url . $format);
+        $cached_content = get_transient($cache_key);
+        
+        if ($cached_content !== false) {
+            return $cached_content;
+        }
+        
+        $items = [];
+        
+        switch ($format) {
+            case 'rss':
+                $items = $this->fetch_rss_content($url);
+                break;
+            case 'json':
+                $items = $this->fetch_json_content($url);
+                break;
+            case 'html':
+                $items = $this->fetch_html_content($url);
+                break;
+        }
+        
+        // Cache for 15 minutes
+        set_transient($cache_key, $items, 15 * MINUTE_IN_SECONDS);
+        
+        return $items;
+    }
+    
+    private function fetch_rss_content($url) {
+        $rss = fetch_feed($url);
+        
+        if (is_wp_error($rss)) {
+            return [];
+        }
+        
+        $items = [];
+        $rss_items = $rss->get_items(0, 20);
+        
+        foreach ($rss_items as $item) {
+            $items[] = [
+                'title' => $item->get_title(),
+                'content' => wp_trim_words(strip_tags($item->get_description()), 30),
+                'link' => $item->get_link(),
+                'date' => $item->get_date('Y-m-d H:i:s'),
+                'image' => $this->extract_image_from_content($item->get_content()),
+                'category' => $this->get_rss_category($item),
+            ];
+        }
+        
+        return $items;
+    }
+    
+    private function fetch_json_content($url) {
+        $response = wp_remote_get($url);
+        
+        if (is_wp_error($response)) {
+            return [];
+        }
+        
+        $data = json_decode(wp_remote_retrieve_body($response), true);
+        
+        if (!$data) {
+            return [];
+        }
+        
+        $items = [];
+        
+        // Assume standard JSON structure - adjust as needed
+        foreach ($data as $item) {
+            $items[] = [
+                'title' => $item['title'] ?? 'No Title',
+                'content' => wp_trim_words(strip_tags($item['content'] ?? $item['description'] ?? ''), 30),
+                'link' => $item['link'] ?? $item['url'] ?? '#',
+                'date' => $item['date'] ?? current_time('Y-m-d H:i:s'),
+                'image' => $item['image'] ?? $item['thumbnail'] ?? '',
+                'category' => $item['category'] ?? 'News',
+            ];
+        }
+        
+        return $items;
+    }
+    
+    private function fetch_html_content($url) {
+        // Basic HTML scraping - would need more specific implementation
+        return [];
+    }
+    
+    private function extract_image_from_content($content) {
+        preg_match('/<img[^>]+src=[\'"]([^\'"]+)[\'"][^>]*>/i', $content, $matches);
+        return isset($matches[1]) ? $matches[1] : '';
+    }
+    
+    private function get_rss_category($item) {
+        $categories = $item->get_categories();
+        return !empty($categories) ? $categories[0]->get_label() : 'News';
+    }
+    
+    private function render_external_item($item, $settings, $index) {
+        ?>
+        <div class="news-item external-item">
+            <?php if (!empty($item['image']) && $settings['show_images'] !== 'no'): ?>
+                <div class="item-image">
+                    <img src="<?php echo esc_url($item['image']); ?>" alt="<?php echo esc_attr($item['title']); ?>">
+                </div>
+            <?php endif; ?>
+            
+            <div class="item-content">
+                <h3 class="item-title">
+                    <a href="<?php echo esc_url($item['link']); ?>" target="_blank" rel="noopener">
+                        <?php echo esc_html($item['title']); ?>
+                    </a>
+                </h3>
+                
+                <?php if ($settings['show_categories'] !== 'no'): ?>
+                    <span class="item-category"><?php echo esc_html($item['category']); ?></span>
+                <?php endif; ?>
+                
+                <?php if ($settings['show_dates'] !== 'no'): ?>
+                    <span class="item-date"><?php echo date('M j, Y', strtotime($item['date'])); ?></span>
+                <?php endif; ?>
+                
+                <?php if (!empty($item['content']) && $settings['show_excerpts'] !== 'no'): ?>
+                    <p class="item-excerpt"><?php echo esc_html($item['content']); ?></p>
+                <?php endif; ?>
+                
+                <a href="<?php echo esc_url($item['link']); ?>" class="read-more" target="_blank" rel="noopener">Read More</a>
+            </div>
+        </div>
+        <?php
     }
     
     private function should_show_item($item) {
@@ -1404,6 +1693,26 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
         }
         
         return true;
+    }
+    
+    private function render_pagination($current_page, $total_pages, $settings) {
+        ?>
+        <div class="pagination-container">
+            <div class="pagination-wrapper">
+                <?php if ($current_page > 1): ?>
+                    <a href="#" class="pagination-btn" data-page="<?php echo $current_page - 1; ?>">‹ Previous</a>
+                <?php endif; ?>
+                
+                <?php for ($i = 1; $i <= $total_pages; $i++): ?>
+                    <a href="#" class="pagination-btn <?php echo $i === $current_page ? 'active' : ''; ?>" data-page="<?php echo $i; ?>"><?php echo $i; ?></a>
+                <?php endfor; ?>
+                
+                <?php if ($current_page < $total_pages): ?>
+                    <a href="#" class="pagination-btn" data-page="<?php echo $current_page + 1; ?>">Next ›</a>
+                <?php endif; ?>
+            </div>
+        </div>
+        <?php
     }
     
     private function render_single_item($item, $settings, $index) {

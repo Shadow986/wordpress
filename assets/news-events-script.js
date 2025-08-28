@@ -9,6 +9,14 @@ jQuery(document).ready(function($) {
         }
     });
     
+    // Pagination click handler
+    $(document).on('click', '.pagination-btn', function(e) {
+        e.preventDefault();
+        const page = parseInt($(this).data('page'));
+        const widget = $(this).closest('.news-events-container');
+        loadPage(widget, page);
+    });
+    
     // Tab switching
     $(document).on('click', '.tab-btn', function() {
         const tab = $(this).data('tab');
@@ -28,6 +36,256 @@ jQuery(document).ready(function($) {
     
     $(document).on('change', 'input[type="file"]', function() {
         const file = this.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const preview = $(this).siblings('.image-preview');
+                preview.html('<img src="' + e.target.result + '" alt="Preview">');
+            }.bind(this);
+            reader.readAsDataURL(file);
+        }
+    });
+    
+    // Form submissions
+    $(document).on('submit', '.news-form, .events-form', function(e) {
+        e.preventDefault();
+        
+        const form = $(this);
+        const formData = new FormData(this);
+        const submitBtn = form.find('.submit-btn');
+        
+        // Add action and nonce
+        formData.append('action', 'save_news_event_item');
+        formData.append('nonce', newsEventsAjax.nonce);
+        
+        // Show loading state
+        submitBtn.prop('disabled', true).text('Saving...');
+        
+        $.ajax({
+            url: newsEventsAjax.ajaxurl,
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                if (response.success) {
+                    showMessage('Item saved successfully!', 'success');
+                    form[0].reset();
+                    form.find('.image-preview').empty();
+                    
+                    // Refresh the display
+                    const widget = form.closest('.news-events-container');
+                    refreshWidget(widget);
+                } else {
+                    showMessage('Error: ' + response.data, 'error');
+                }
+            },
+            error: function() {
+                showMessage('Failed to save item. Please try again.', 'error');
+            },
+            complete: function() {
+                submitBtn.prop('disabled', false).text('Save Item');
+            }
+        });
+    });
+    
+    // Delete item
+    $(document).on('click', '.delete-item', function(e) {
+        e.preventDefault();
+        
+        if (!confirm('Are you sure you want to delete this item?')) {
+            return;
+        }
+        
+        const button = $(this);
+        const itemId = button.data('id');
+        const widget = button.closest('.news-events-container');
+        
+        $.ajax({
+            url: newsEventsAjax.ajaxurl,
+            type: 'POST',
+            data: {
+                action: 'delete_news_event_item',
+                nonce: newsEventsAjax.nonce,
+                item_id: itemId
+            },
+            success: function(response) {
+                if (response.success) {
+                    showMessage('Item deleted successfully!', 'success');
+                    refreshWidget(widget);
+                } else {
+                    showMessage('Error: ' + response.data, 'error');
+                }
+            },
+            error: function() {
+                showMessage('Failed to delete item. Please try again.', 'error');
+            }
+        });
+    });
+    
+    // Edit item
+    $(document).on('click', '.edit-item', function(e) {
+        e.preventDefault();
+        
+        const button = $(this);
+        const itemData = button.data();
+        const form = button.closest('.news-events-container').find('.news-form, .events-form').first();
+        
+        // Populate form with item data
+        Object.keys(itemData).forEach(key => {
+            const input = form.find('[name="' + key + '"]');
+            if (input.length) {
+                if (input.attr('type') === 'checkbox') {
+                    input.prop('checked', itemData[key] === 'yes' || itemData[key] === true);
+                } else {
+                    input.val(itemData[key]);
+                }
+            }
+        });
+        
+        // Show image preview if exists
+        if (itemData.image) {
+            form.find('.image-preview').html('<img src="' + itemData.image + '" alt="Preview">');
+        }
+        
+        // Add item ID to form for updating
+        form.find('[name="item_id"]').remove();
+        form.append('<input type="hidden" name="item_id" value="' + itemData.id + '">');
+        
+        // Switch to appropriate tab
+        const tabType = itemData.type === 'event' ? 'events' : 'news';
+        form.closest('.management-panel').find('.tab-btn[data-tab="' + tabType + '"]').click();
+    });
+    
+    function loadPage(widget, page) {
+        const gridItems = widget.find('.grid-items');
+        const allItems = gridItems.children();
+        const settings = widget.data('settings') || {};
+        const itemsPerPage = parseInt(settings.items_per_page) || 6;
+        
+        // Calculate pagination
+        const totalItems = allItems.length;
+        const totalPages = Math.ceil(totalItems / itemsPerPage);
+        const offset = (page - 1) * itemsPerPage;
+        
+        // Hide all items
+        allItems.hide();
+        
+        // Show items for current page
+        allItems.slice(offset, offset + itemsPerPage).show();
+        
+        // Update pagination
+        updatePagination(widget, page, totalPages);
+        
+        // Update widget data
+        widget.data('current-page', page);
+        
+        // Scroll to widget
+        $('html, body').animate({
+            scrollTop: widget.offset().top - 100
+        }, 300);
+    }
+    
+    function updatePagination(widget, currentPage, totalPages) {
+        const pagination = widget.find('.pagination-wrapper');
+        let html = '';
+        
+        if (totalPages <= 1) {
+            pagination.parent().hide();
+            return;
+        }
+        
+        // Previous button
+        if (currentPage > 1) {
+            html += '<a href="#" class="pagination-btn" data-page="' + (currentPage - 1) + '">‹ Previous</a>';
+        }
+        
+        // Page numbers
+        for (let i = 1; i <= totalPages; i++) {
+            const activeClass = i === currentPage ? ' active' : '';
+            html += '<a href="#" class="pagination-btn' + activeClass + '" data-page="' + i + '">' + i + '</a>';
+        }
+        
+        // Next button
+        if (currentPage < totalPages) {
+            html += '<a href="#" class="pagination-btn" data-page="' + (currentPage + 1) + '">Next ›</a>';
+        }
+        
+        pagination.html(html);
+        pagination.parent().show();
+    }
+    
+    function initializeWidget(widgetId) {
+        const widget = $('#' + widgetId);
+        const settings = widget.data('settings') || {};
+        
+        // Initialize pagination
+        if (settings.enable_pagination === 'yes') {
+            const itemsPerPage = parseInt(settings.items_per_page) || 6;
+            const totalItems = widget.find('.grid-items').children().length;
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            
+            if (totalPages > 1) {
+                loadPage(widget, 1);
+                
+                // Initialize auto-scroll if enabled
+                if (settings.enable_auto_scroll === 'yes') {
+                    initAutoScroll(widget, settings);
+                }
+            }
+        }
+    }
+    
+    function initAutoScroll(widget, settings) {
+        const interval = parseInt(settings.auto_scroll_interval) * 1000 || 5000;
+        let autoScrollTimer;
+        
+        function startAutoScroll() {
+            autoScrollTimer = setInterval(function() {
+                const currentPage = parseInt(widget.data('current-page')) || 1;
+                const totalPages = Math.ceil(widget.find('.grid-items').children().length / (parseInt(settings.items_per_page) || 6));
+                const nextPage = currentPage >= totalPages ? 1 : currentPage + 1;
+                
+                loadPage(widget, nextPage);
+            }, interval);
+        }
+        
+        function stopAutoScroll() {
+            if (autoScrollTimer) {
+                clearInterval(autoScrollTimer);
+            }
+        }
+        
+        // Start auto-scroll
+        startAutoScroll();
+        
+        // Pause on hover
+        widget.on('mouseenter', stopAutoScroll);
+        widget.on('mouseleave', startAutoScroll);
+        
+        // Stop on manual pagination click
+        widget.on('click', '.pagination-btn', function() {
+            stopAutoScroll();
+            setTimeout(startAutoScroll, interval); // Restart after delay
+        });
+    }
+    
+    function refreshWidget(widget) {
+        // Reload widget content
+        location.reload();
+    }
+    
+    function showMessage(message, type) {
+        const messageDiv = $('<div class="message message-' + type + '">' + message + '</div>');
+        $('body').append(messageDiv);
+        
+        setTimeout(function() {
+            messageDiv.fadeOut(300, function() {
+                $(this).remove();
+            });
+        }, 3000);
+    }
+});
         if (file) {
             const reader = new FileReader();
             const preview = $(this).closest('.image-upload-section').find('.image-preview');

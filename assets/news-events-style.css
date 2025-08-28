@@ -799,3 +799,113 @@ textarea {
         color: #fff;
     }
 }
+
+/* Pagination Styles */
+.pagination-container {
+    margin-top: 30px;
+    text-align: center;
+    padding: 20px 0;
+}
+
+.pagination-wrapper {
+    display: inline-flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.pagination-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    height: 40px;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    color: #495057;
+    text-decoration: none;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.pagination-btn:hover {
+    background: #e9ecef;
+    color: #212529;
+    border-color: #adb5bd;
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.pagination-btn.active {
+    background: #007cba;
+    color: white;
+    border-color: #007cba;
+    box-shadow: 0 2px 4px rgba(0, 124, 186, 0.3);
+}
+
+.pagination-btn.active:hover {
+    background: #005a87;
+    border-color: #005a87;
+    transform: translateY(-1px);
+}
+
+.pagination-dots {
+    padding: 8px 4px;
+    color: #6c757d;
+    font-weight: bold;
+}
+
+/* Auto-scroll indicator */
+.auto-scroll-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(0, 124, 186, 0.1);
+    color: #007cba;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.auto-scroll-indicator.paused {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+}
+
+/* Responsive pagination */
+@media (max-width: 768px) {
+    .pagination-wrapper {
+        gap: 4px;
+    }
+    
+    .pagination-btn {
+        min-width: 36px;
+        height: 36px;
+        padding: 6px 10px;
+        font-size: 13px;
+    }
+    
+    .pagination-container {
+        margin-top: 20px;
+        padding: 15px 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .pagination-btn {
+        min-width: 32px;
+        height: 32px;
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+    
+    .pagination-wrapper {
+        gap: 2px;
+    }
+}
