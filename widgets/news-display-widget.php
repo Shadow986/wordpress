@@ -993,6 +993,88 @@ class NewsDisplayWidget extends \Elementor\Widget_Base {
             ]
         );
         
+        $this->add_control(
+            'main_image_width',
+            [
+                'label' => 'Main Content Image Width',
+                'type' => \Elementor\Controls_Manager::SLIDER,
+                'range' => [
+                    '%' => [
+                        'min' => 50,
+                        'max' => 100,
+                    ],
+                ],
+                'default' => [
+                    'size' => 100,
+                    'unit' => '%',
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .item-image img' => 'width: {{SIZE}}{{UNIT}};',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'main_image_height',
+            [
+                'label' => 'Main Content Image Height',
+                'type' => \Elementor\Controls_Manager::SLIDER,
+                'range' => [
+                    'px' => [
+                        'min' => 100,
+                        'max' => 500,
+                    ],
+                ],
+                'default' => [
+                    'size' => 200,
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .item-image img' => 'height: {{SIZE}}{{UNIT}}; object-fit: cover;',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'sidebar_image_width',
+            [
+                'label' => 'Sidebar Image Width',
+                'type' => \Elementor\Controls_Manager::SLIDER,
+                'range' => [
+                    '%' => [
+                        'min' => 50,
+                        'max' => 100,
+                    ],
+                ],
+                'default' => [
+                    'size' => 100,
+                    'unit' => '%',
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .sidebar-image img' => 'width: {{SIZE}}{{UNIT}};',
+                ],
+            ]
+        );
+        
+        $this->add_control(
+            'sidebar_image_height',
+            [
+                'label' => 'Sidebar Image Height',
+                'type' => \Elementor\Controls_Manager::SLIDER,
+                'range' => [
+                    'px' => [
+                        'min' => 50,
+                        'max' => 200,
+                    ],
+                ],
+                'default' => [
+                    'size' => 80,
+                ],
+                'selectors' => [
+                    '{{WRAPPER}} .sidebar-image img' => 'height: {{SIZE}}{{UNIT}}; object-fit: cover;',
+                ],
+            ]
+        );
+        
         $this->add_group_control(
             \Elementor\Group_Control_Box_Shadow::get_type(),
             [

@@ -38,22 +38,31 @@
     color: white;
 }
 
-/* Layout with Sidebar */
+/* Layout with Sidebar - TRENDING ON RIGHT */
 .content-layout {
-    display: grid;
+    display: flex;
     gap: 30px;
-    align-items: start;
+    align-items: flex-start;
 }
 
 .content-layout.with-sidebar {
-    grid-template-columns: 2fr 1fr;
+    /* Main content on LEFT, Sidebar on RIGHT */
 }
 
 .content-layout.no-sidebar {
-    grid-template-columns: 1fr;
+    justify-content: center;
+}
+
+.content-layout.no-sidebar .sidebar-content {
+    display: none;
 }
 
 /* Main Content Area - LEFT SIDE */
+.main-content {
+    flex: 2;
+    min-width: 0;
+}
+
 .main-content .template-grid[data-columns="2"] .grid-items {
     grid-template-columns: repeat(2, 1fr);
 }
@@ -62,8 +71,9 @@
     grid-template-columns: repeat(3, 1fr);
 }
 
-/* Sidebar Styles - RIGHT SIDE - One Long Column */
+/* Sidebar Styles - RIGHT SIDE */
 .sidebar-content {
+    flex: 1;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     padding: 25px;
     border-radius: 15px;
@@ -72,6 +82,7 @@
     position: sticky;
     top: 20px;
     box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    max-width: 350px;
 }
 
 .sidebar-title {
@@ -88,7 +99,6 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
-    height: 100%;
 }
 
 .sidebar-item {
@@ -143,7 +153,7 @@
     font-style: italic;
 }
 
-/* Main Content Images - Adjustable Size */
+/* Main Content Images */
 .item-image img {
     width: 100%;
     height: 200px;
@@ -173,19 +183,24 @@
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .content-layout.with-sidebar {
-        grid-template-columns: 1fr;
-    }
-    
-    .main-content .template-grid[data-columns="2"] .grid-items,
-    .main-content .template-grid[data-columns="3"] .grid-items {
-        grid-template-columns: 1fr;
+    .content-layout {
+        flex-direction: column;
     }
     
     .sidebar-content {
         position: static;
         min-height: auto;
-        margin-top: 20px;
+        max-width: none;
+        order: 2;
+    }
+    
+    .main-content {
+        order: 1;
+    }
+    
+    .main-content .template-grid[data-columns="2"] .grid-items,
+    .main-content .template-grid[data-columns="3"] .grid-items {
+        grid-template-columns: 1fr;
     }
 }
 
