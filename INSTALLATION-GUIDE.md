@@ -1,5 +1,9 @@
 # 📰 News & Events Elementor Widgets - Installation Guide
 
+## 🔐 **License Activation Required**
+
+This plugin requires a valid license key to function. Purchase your license at [your-website.com/purchase](https://your-website.com/purchase)
+
 ## 🚀 Quick Installation
 
 ### Step 1: Prepare Plugin Files
@@ -12,13 +16,21 @@
 3. Choose your zip file and click **Install Now**
 4. **Activate** the plugin
 
-### Step 3: Verify Installation
+### Step 3: Activate License
+1. Go to **WordPress Admin** → **Settings** → **News & Events License**
+2. **Enter your license key** (purchased from your-website.com)
+3. Click **"Activate License"**
+4. Wait for confirmation message
+
+### Step 4: Verify Installation
 - Go to **Elementor** → **Edit any page**
 - Look for these widgets in the **General** category:
   - 📰 **News Display** - Shows news items to visitors
   - ✏️ **News Manager** - Add/edit news items
   - 📅 **Events Display** - Shows events to visitors  
   - 🎯 **Events Manager** - Add/edit events
+
+**Note:** Widgets will only appear after successful license activation.
 
 ## 🎯 Widget Overview
 

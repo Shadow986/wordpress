@@ -4,6 +4,8 @@
  * Description: Complete news and events management system with Elementor widgets for drag-and-drop functionality
  * Version: 1.0.0
  * Author: Your Name
+ * License: Commercial
+ * Requires License: Yes
  */
 
 if (!defined('ABSPATH')) {
@@ -13,20 +15,32 @@ if (!defined('ABSPATH')) {
 define('NEWS_EVENTS_PLUGIN_URL', plugin_dir_url(__FILE__));
 define('NEWS_EVENTS_PLUGIN_PATH', plugin_dir_path(__FILE__));
 
+// Include license manager
+require_once NEWS_EVENTS_PLUGIN_PATH . 'includes/license-manager.php';
+
 class NewsEventsElementor {
     
+    private $license_manager;
+    
     public function __construct() {
+        $this->license_manager = new NewsEventsLicenseManager();
+        
         add_action('init', [$this, 'init']);
-        add_action('elementor/widgets/widgets_registered', [$this, 'register_widgets']);
-        add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
-        add_action('wp_ajax_save_news_item', [$this, 'save_news_item']);
-        add_action('wp_ajax_save_event_item', [$this, 'save_event_item']);
-        add_action('wp_ajax_delete_news_item', [$this, 'delete_news_item']);
-        add_action('wp_ajax_delete_event_item', [$this, 'delete_event_item']);
-        add_action('wp_ajax_get_news_items', [$this, 'get_news_items']);
-        add_action('wp_ajax_get_event_items', [$this, 'get_event_items']);
-        add_action('wp_ajax_nopriv_get_news_items', [$this, 'get_news_items']);
-        add_action('wp_ajax_nopriv_get_event_items', [$this, 'get_event_items']);
+        add_action('admin_notices', [$this->license_manager, 'show_license_notice']);
+        
+        // Only load widgets if licensed
+        if ($this->license_manager->is_licensed()) {
+            add_action('elementor/widgets/widgets_registered', [$this, 'register_widgets']);
+            add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
+            add_action('wp_ajax_save_news_item', [$this, 'save_news_item']);
+            add_action('wp_ajax_save_event_item', [$this, 'save_event_item']);
+            add_action('wp_ajax_delete_news_item', [$this, 'delete_news_item']);
+            add_action('wp_ajax_delete_event_item', [$this, 'delete_event_item']);
+            add_action('wp_ajax_get_news_items', [$this, 'get_news_items']);
+            add_action('wp_ajax_get_event_items', [$this, 'get_event_items']);
+            add_action('wp_ajax_nopriv_get_news_items', [$this, 'get_news_items']);
+            add_action('wp_ajax_nopriv_get_event_items', [$this, 'get_event_items']);
+        }
     }
     
     public function init() {
