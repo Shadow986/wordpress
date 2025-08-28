@@ -17,6 +17,7 @@ class NewsEventsElementor {
     
     public function __construct() {
         add_action('init', [$this, 'init']);
+        add_action('plugins_loaded', [$this, 'check_elementor']);
         add_action('elementor/widgets/widgets_registered', [$this, 'register_widgets']);
         add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
         add_action('wp_ajax_save_news_item', [$this, 'save_news_item']);
@@ -27,6 +28,15 @@ class NewsEventsElementor {
         add_action('wp_ajax_get_event_items', [$this, 'get_event_items']);
         add_action('wp_ajax_nopriv_get_news_items', [$this, 'get_news_items']);
         add_action('wp_ajax_nopriv_get_event_items', [$this, 'get_event_items']);
+    }
+    
+    public function check_elementor() {
+        if (!class_exists('Elementor\Plugin')) {
+            add_action('admin_notices', function() {
+                echo '<div class="notice notice-error"><p><strong>News & Events Widgets:</strong> Elementor is required for this plugin to work.</p></div>';
+            });
+            return;
+        }
     }
     
     public function init() {
@@ -85,6 +95,11 @@ class NewsEventsElementor {
     }
     
     public function register_widgets() {
+        // Check if Elementor is loaded
+        if (!did_action('elementor/loaded')) {
+            return;
+        }
+        
         require_once NEWS_EVENTS_PLUGIN_PATH . 'widgets/news-display-widget.php';
         require_once NEWS_EVENTS_PLUGIN_PATH . 'widgets/news-manager-widget.php';
         require_once NEWS_EVENTS_PLUGIN_PATH . 'widgets/events-display-widget.php';
